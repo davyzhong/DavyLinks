@@ -1,0 +1,78 @@
+{
+  "sources": [
+    {
+      "name": "36氪",
+      "type": "rss",
+      "url": "https://36kr.com/feed",
+      "category": "科技创投",
+      "weight": 5,
+      "keywords": ["AI", "人工智能", "大模型", "创业", "融资", "科技", "芯片", "新能源"]
+    },
+    {
+      "name": "少数派",
+      "type": "rss",
+      "url": "https://sspai.com/feed",
+      "category": "效率工具",
+      "weight": 4,
+      "keywords": ["AI", "效率", "工具", "自动化", "生产力", "GPT", "苹果", "微软"]
+    },
+    {
+      "name": "机器之心",
+      "type": "rss",
+      "url": "https://www.jiqizhixin.com/rss",
+      "category": "AI前沿",
+      "weight": 5,
+      "keywords": ["AI", "人工智能", "大模型", "LLM", "深度学习", "论文", "机器学习", "GPT", "Claude", "Gemini"]
+    },
+    {
+      "name": "量子位",
+      "type": "rss",
+      "url": "https://www.qbitai.com/feed",
+      "category": "AI资讯",
+      "weight": 5,
+      "keywords": ["AI", "人工智能", "大模型", "LLM", "ChatGPT", "自动驾驶", "芯片"]
+    },
+    {
+      "name": "InfoQ中文",
+      "type": "rss",
+      "url": "https://www.infoq.cn/feed",
+      "category": "技术深度",
+      "weight": 4,
+      "keywords": ["AI", "架构", "微服务", "编程", "开源", "大模型", "云原生", "DevOps"]
+    },
+    {
+      "name": "虎嗅",
+      "type": "rss",
+      "url": "https://www.huxiu.com/rss/0.xml",
+      "category": "商业科技",
+      "weight": 4,
+      "keywords": ["AI", "科技", "创业", "商业", "互联网", "汽车", "新能源", "芯片"]
+    },
+    {
+      "name": "IT之家",
+      "type": "rss",
+      "url": "https://www.ithome.com/rss/",
+      "category": "科技资讯",
+      "weight": 3,
+      "keywords": ["AI", "芯片", "手机", "微软", "苹果", "谷歌", "华为", "智能", "大模型"]
+    },
+    {
+      "name": "Hacker News",
+      "type": "rss",
+      "url": "https://hnrss.org/frontpage",
+      "category": "技术",
+      "weight": 3,
+      "keywords": ["AI", "LLM", "GPT", "Claude", "Gemini", "open source", "programming", "AGI"]
+    }
+  ],
+  "global_keywords": [
+    "AI", "人工智能", "大模型", "LLM", "AGI", "GPT", "Claude", "Gemini",
+    "机器学习", "深度学习", "Transformer",
+    "效率", "工具", "自动化", "生产力",
+    "创业", "产品", "科技",
+    "编程", "开源", "open source",
+    "AI agent", "RAG", "fine-tuning",
+    "芯片", "新能源", "自动驾驶", "智能",
+    "DeepSeek", "通义", "智谱", "Kimi", "百度"
+  ]
+}

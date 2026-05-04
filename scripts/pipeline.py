@@ -32,9 +32,9 @@ sys.path.insert(0, SCRIPT_DIR)
 
 def run_phase(name, cmd, input_data=None):
     """运行一个阶段，返回输出"""
-    logger.info("\n{'='*50}")
-    logger.info("[{name}] 开始...")
-    logger.info("{'='*50}")
+    logger.info("\n%s", "="*50)
+    logger.info("[%s] 开始...", name)
+    logger.info("%s", "="*50)
 
     start = time.time()
     try:
@@ -50,20 +50,20 @@ def run_phase(name, cmd, input_data=None):
         elapsed = time.time() - start
 
         if result.returncode != 0:
-            logger.info("[{name}] 失败 (exit={result.returncode})", file=sys.stderr)
+            logger.error("[%s] 失败 (exit=%d)", name, result.returncode)
             logger.info(result.stderr)
             return None, elapsed
 
-        logger.info("[{name}] 完成 ({elapsed:.1f}s)")
+        logger.info("[%s] 完成 (%.1fs)", name, elapsed)
         if result.stderr:
             for line in result.stderr.strip().split("\n"):
                 if line.strip():
-                    logger.info("  {line}")
+                    logger.info("  %s", line)
         return result.stdout, elapsed
 
     except subprocess.TimeoutExpired:
         elapsed = time.time() - start
-        logger.info("[{name}] 超时 ({elapsed:.1f}s)", file=sys.stderr)
+        logger.error("[%s] 超时 (%.1fs)", name, elapsed)
         return None, elapsed
 
 
@@ -89,9 +89,9 @@ def main():
         logger.info("旧记录清理完成")
         return
 
-    logger.info("{'='*60}")
-    logger.info(" DavyLinks 每日信息聚合 — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    logger.info("{'='*60}")
+    logger.info("%s", "="*60)
+    logger.info(" DavyLinks 每日信息聚合 — %s", datetime.now().strftime('%Y-%m-%d %H:%M'))
+    logger.info("%s", "="*60)
 
     # Phase 1-2: 扫描 + 去重 + 过滤
     output_scan, t1 = run_phase(
@@ -123,9 +123,9 @@ def main():
         return
 
     if args.dry_run:
-        logger.info("\n[DRY RUN] 找到 {len(articles)} 篇相关文章，停止执行")
+        logger.info("\n[DRY RUN] 找到 %d 篇相关文章，停止执行", len(articles))
         for i, a in enumerate(articles[:10], 1):
-            logger.info("  {i}. [{a.get('source', '?')}] {a.get('title', '?')[:50]} (score={a.get('relevance_score', 0)})")
+            logger.info("  %d. [%s] %s (score=%d)", i, a.get('source', '?'), a.get('title', '?')[:50], a.get('relevance_score', 0))
         return
 
     # Phase 3: LLM 摘要 + 排序

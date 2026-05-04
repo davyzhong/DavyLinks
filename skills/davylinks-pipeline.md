@@ -2,11 +2,24 @@
 
 > 自动化科技资讯聚合 — 扫描、摘要、推送每日精华
 
-## 触发方式
+## 重要提示
 
-**Cron 定时**: 每天早上 8:00 自动执行
+**本技能需要在本地终端执行**，无法在 VM 沙箱中运行：
 
-**手动触发**: `/davylinks` 或 `运行 DavyLinks 管线`
+- `blogwatcher-cli` 需要预先安装
+- RSS 抓取需要访问外部网络（沙箱受限）
+
+当用户触发时，技能应返回提示让用户在本机执行：
+
+```bash
+cd /Users/qiming/workspace/DavyLinks
+
+# 预览模式（不推送）
+python3 scripts/pipeline.py --dry-run
+
+# 完整执行
+python3 scripts/pipeline.py
+```
 
 ## 能力说明
 

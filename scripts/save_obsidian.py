@@ -14,8 +14,22 @@ import sys
 import os
 from datetime import datetime, timedelta
 
-VAULT_PATH = os.environ.get("OBSIDIAN_VAULT_PATH", "/Users/qiming/ObsidianWiki")
-DIGEST_DIR = os.path.join(VAULT_PATH, "知识助理", "每日精华")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, SCRIPT_DIR)
+from config_loader import get_obsidian_config
+
+
+def load_vault_path():
+    """Load Obsidian vault path from shared configuration."""
+    return get_obsidian_config().get("vault_path", "/Users/qiming/ObsidianWiki")
+
+
+def load_digest_dir():
+    return os.path.join(load_vault_path(), "知识助理", "每日精华")
+
+
+VAULT_PATH = load_vault_path()
+DIGEST_DIR = load_digest_dir()
 
 
 def generate_note_content(top5, other, today):
@@ -61,7 +75,7 @@ def generate_note_content(top5, other, today):
         lines.append(f"|------|-----|")
         lines.append(f"| 来源 | {source} |")
         lines.append(f"| 分类 | {category} |")
-        lines.append(f"| 评分 | {score:.1f} |")
+        lines.append(f"| 评分 | {float(score):.1f} |")
         if url:
             lines.append(f"| 链接 | [{url[:50]}...]({url}) |")
         if tags_str:

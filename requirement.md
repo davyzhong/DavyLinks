@@ -1,4 +1,14 @@
-# DavyLinks 知识助理系统设计方案
+# DavyLinks 知识助理系统设计方案（历史文档）
+
+> **注意**: 这是项目的原始设计文档，记录了系统初始设计思路。当前实现已有较大演进，请参考：
+> - `README.md` - 项目概览和快速开始
+> - `ARCHITECTURE.md` - 当前架构设计
+> - `USAGE.md` - 使用指南
+> - `CLAUDE.md` - Claude Code 快速参考
+
+---
+
+## 原始设计（2026-05-04）
 
 > 基于 Hermes Agent 框架实现，复用 Davybase 管线经验与基础设施。
 
@@ -152,7 +162,7 @@ CREATE TABLE IF NOT EXISTS run_log (
 **工具：** blogwatcher skill + terminal (curl/xq)
 
 ```
-1. blogwatcher scan → 获取所有订阅源的新文章列表
+1. blogwatcher-cli articles → 获取所有订阅源的新文章列表
 2. 对每篇新文章，用 terminal + curl 抓取全文
 3. HTML → Markdown 转换（使用 readability + pandoc 或 xq）
 4. 输出：[{title, url, source, category, content_md, published_at}, ...]
@@ -322,13 +332,11 @@ DavyLinks/
 ├── scripts/
 │   ├── scan_articles.py        # Phase 1-2: 扫描 + 去重过滤
 │   ├── summarize.py            # Phase 3: LLM 摘要 + 排序
-│   ├── push_feishu.py          # Phase 4: 推送飞书（调用 Davybase notify）
+│   ├── feishu_bitable.py       # Phase 4: 推送飞书多维表格
 │   ├── save_obsidian.py        # Phase 5: 沉淀到 Obsidian
 │   ├── state_db.py             # SQLite 状态管理（共用模块）
-│   └── weekly_digest.py        # 周报生成
-├── templates/
-│   ├── daily-card.json         # 飞书 Card 模板
-│   └── obsidian-note.md        # Obsidian 笔记模板
+│   ├── logging_config.py       # 统一日志配置
+│   └── pipeline.py             # 主流程编排
 └── skills/
     └── davylinks-pipeline.md   # Hermes skill（管线编排）
 ```

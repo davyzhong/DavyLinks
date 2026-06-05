@@ -70,22 +70,25 @@ def filter_new_articles(conn, articles):
 
 def mark_processed(conn, articles):
     """批量标记文章为已处理（使用 INSERT OR REPLACE 支持摘要更新）"""
-    for a in articles:
-        conn.execute(
-            """INSERT OR REPLACE INTO processed_articles
-               (url, title, source, category, published_at, relevance_score, summary, pushed, processed_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)""",
-            (
-                a.get("url", ""),
-                a.get("title", ""),
-                a.get("source", ""),
-                a.get("category", ""),
-                a.get("published_at"),
-                a.get("relevance_score", 0),
-                a.get("summary", ""),
-                1 if a.get("pushed") else 0,
-            )
+    rows = [
+        (
+            a.get("url", ""),
+            a.get("title", ""),
+            a.get("source", ""),
+            a.get("category", ""),
+            a.get("published_at"),
+            a.get("relevance_score", 0),
+            a.get("summary", ""),
+            1 if a.get("pushed") else 0,
         )
+        for a in articles
+    ]
+    conn.executemany(
+        """INSERT OR REPLACE INTO processed_articles
+           (url, title, source, category, published_at, relevance_score, summary, pushed, processed_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)""",
+        rows,
+    )
     conn.commit()
 
 
@@ -112,7 +115,10 @@ def record_run(conn, stats):
 
 def cleanup_old(conn, days=90):
     """清理超过 N 天的已处理记录"""
-    conn.execute(f"DELETE FROM processed_articles WHERE processed_at < datetime('now', '-{days} days')")
+    conn.execute(
+        "DELETE FROM processed_articles WHERE processed_at < datetime('now', ?)",
+        (f"-{int(days)} days",),
+    )
     conn.commit()
 
 

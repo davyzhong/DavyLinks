@@ -4,9 +4,6 @@
 # YAML parsing (optional, has fallback)
 pyyaml>=6.0
 
-# HTTP requests (optional, has fallback)
-requests>=2.28.0
-
 # Development
 pytest>=7.0.0
 pytest-cov>=4.0.0

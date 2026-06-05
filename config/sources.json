@@ -22,7 +22,9 @@
       "url": "https://www.jiqizhixin.com/rss",
       "category": "AI前沿",
       "weight": 5,
-      "keywords": ["AI", "人工智能", "大模型", "LLM", "深度学习", "论文", "机器学习", "GPT", "Claude", "Gemini"]
+      "keywords": ["AI", "人工智能", "大模型", "LLM", "深度学习", "论文", "机器学习", "GPT", "Claude", "Gemini"],
+      "disabled": true,
+      "disabled_reason": "RSS feed 不可用"
     },
     {
       "name": "量子位",
@@ -38,7 +40,9 @@
       "url": "https://www.infoq.cn/feed",
       "category": "技术深度",
       "weight": 4,
-      "keywords": ["AI", "架构", "微服务", "编程", "开源", "大模型", "云原生", "DevOps"]
+      "keywords": ["AI", "架构", "微服务", "编程", "开源", "大模型", "云原生", "DevOps"],
+      "disabled": true,
+      "disabled_reason": "无可用 feed"
     },
     {
       "name": "虎嗅",
@@ -46,7 +50,9 @@
       "url": "https://www.huxiu.com/rss/0.xml",
       "category": "商业科技",
       "weight": 4,
-      "keywords": ["AI", "科技", "创业", "商业", "互联网", "汽车", "新能源", "芯片"]
+      "keywords": ["AI", "科技", "创业", "商业", "互联网", "汽车", "新能源", "芯片"],
+      "disabled": true,
+      "disabled_reason": "RSS feed 不可用"
     },
     {
       "name": "IT之家",

@@ -10,25 +10,37 @@
     python push_feishu.py --dry-run   # 仅输出内容，不发送
 """
 
-# 导入日志配置
-import sys
+import json
 import os
+import subprocess
+import sys
+from datetime import datetime
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
+
 from logging_config import setup_logging
+from config_loader import get_davybase_config, get_feishu_config
 
 logger = setup_logging(__name__)
 
+# 延迟加载配置
+_davybase_config = None
+_feishu_webhook = None
 
-import json
-import sys
-import os
-import subprocess
-from datetime import datetime
 
-DAVYBASE_NOTIFY = "/Users/qiming/workspace/davybase/scripts/notify.py"
-DAVYBASE_SECRETS = "/Users/qiming/workspace/davybase/secrets.yaml"
-FEISHU_WEBHOOK = "https://open.feishu.cn/open-apis/bot/v2/hook/ecae1286-dc6c-4717-bf57-fa6f7aaa87a4"
+def _get_davybase_config():
+    global _davybase_config
+    if _davybase_config is None:
+        _davybase_config = get_davybase_config()
+    return _davybase_config
+
+
+def _get_feishu_webhook():
+    global _feishu_webhook
+    if _feishu_webhook is None:
+        _feishu_webhook = get_feishu_config().get("webhook_url", "")
+    return _feishu_webhook
 
 
 def _source_badge(article):
@@ -86,30 +98,38 @@ def generate_digest(top5, other, total_scanned):
 
 def send_via_davybase_notify(content):
     """通过 Davybase 的 notify.py 发送飞书消息"""
-    if not os.path.exists(DAVYBASE_NOTIFY):
-        logger.warning("[ERROR] Davybase notify.py 不存在: {DAVYBASE_NOTIFY}")
+    cfg = _get_davybase_config()
+    notify_path = cfg.get("notify_path", "")
+    secrets_path = cfg.get("secrets_path", "")
+
+    if not notify_path or not os.path.exists(notify_path):
+        logger.warning("[ERROR] Davybase notify.py 不存在: %s", notify_path)
         return False
 
     try:
-        result = subprocess.run(
-            ["python3", DAVYBASE_NOTIFY, "--message", content, "--type", "feishu",
-             "--config", DAVYBASE_SECRETS],
-            capture_output=True, text=True, timeout=30,
-        )
+        cmd = ["python3", notify_path, "--message", content, "--type", "feishu"]
+        if secrets_path:
+            cmd.extend(["--config", secrets_path])
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
         if result.returncode == 0:
             logger.info("[OK] 飞书推送成功")
             return True
         else:
-            logger.warning("[ERROR] 飞书推送失败: {result.stderr.strip()}", file=sys.stderr)
+            logger.warning("[ERROR] 飞书推送失败: %s", result.stderr.strip())
             return False
     except subprocess.TimeoutExpired:
-        logger.warning("[ERROR] 飞书推送超时(30s)", file=sys.stderr)
+        logger.warning("[ERROR] 飞书推送超时(30s)")
         return False
 
 
 def send_via_webhook(content):
     """直接调用飞书 webhook 发送（不依赖 yaml/httpx）"""
     import urllib.request
+
+    webhook_url = _get_feishu_webhook()
+    if not webhook_url:
+        logger.warning("[ERROR] 未配置 FEISHU_WEBHOOK_URL 或 feishu.webhook_url")
+        return False
 
     try:
         today = datetime.now().strftime("%Y-%m-%d")
@@ -126,7 +146,7 @@ def send_via_webhook(content):
             }
         }).encode("utf-8")
 
-        req = urllib.request.Request(FEISHU_WEBHOOK, data=payload, method="POST")
+        req = urllib.request.Request(webhook_url, data=payload, method="POST")
         req.add_header("Content-Type", "application/json")
 
         with urllib.request.urlopen(req, timeout=10) as resp:
@@ -135,10 +155,10 @@ def send_via_webhook(content):
                 logger.info("[OK] 飞书推送成功")
                 return True
             else:
-                logger.warning("[ERROR] 飞书返回错误: {result}")
+                logger.warning("[ERROR] 飞书返回错误: %s", result)
                 return False
     except Exception as e:
-        logger.warning("[ERROR] webhook 推送失败: {e}")
+        logger.warning("[ERROR] webhook 推送失败: %s", e)
         return False
 
 
@@ -181,9 +201,9 @@ def main():
 
     if success:
         # 标记已推送
-        logger.info(json.dumps({"pushed": len(top5) + len(other), "status": "success"}))
+        print(json.dumps({"pushed": len(top5) + len(other), "status": "success"}))
     else:
-        logger.info(json.dumps({"pushed": 0, "status": "failed"}))
+        print(json.dumps({"pushed": 0, "status": "failed"}))
 
 
 if __name__ == "__main__":

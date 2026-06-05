@@ -4,27 +4,31 @@
 
 ### 1. 环境要求
 
-- Python 3.10+
-- pip 包管理器
+- Python 3.9+
+- venv / pip 包管理器
 
 ### 2. 安装依赖
 
 ```bash
-cd /Users/qiming/workspace/DavyLinks
-pip install -r requirements.txt
+cd /path/to/DavyLinks
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
 ### 3. 配置密钥
 
 ```bash
-# 创建配置目录
+# 创建配置目录（备用位置）
 mkdir -p ~/.davylinks
 
-# 复制配置模板
-cp config/secrets.example.yaml ~/.davylinks/secrets.yaml
+# 复制配置模板到项目目录（推荐位置）
+cp config/secrets.example.yaml config/secrets.yaml
+
+# 或复制到用户目录（备用位置）
+# cp config/secrets.example.yaml ~/.davylinks/secrets.yaml
 
 # 编辑配置（填入真实凭证）
-vim ~/.davylinks/secrets.yaml
+vim config/secrets.yaml
 ```
 
 ### 4. 密钥配置说明
@@ -32,12 +36,12 @@ vim ~/.davylinks/secrets.yaml
 ```yaml
 # 飞书开放平台凭证
 feishu:
-  app_id: "cli_xxx"                    # 替换为你的 App ID
-  app_secret: "xxx"                    # 替换为你的 App Secret
-  webhook_url: "https://open.feishu.cn/..."  # 机器人 Webhook
+  app_id: "cli_xxx"
+  app_secret: "xxx"
+  webhook_url: "https://open.feishu.cn/..."
   bitable:
-    app_token: "xxx"                   # 多维表格 App Token
-    table_id: "tblxxx"                 # 数据表 ID
+    app_token: "xxx"
+    table_id: "tblxxx"
 
 # LLM Provider 配置
 llm_providers:
@@ -53,6 +57,11 @@ llm_providers:
 # Obsidian 配置
 obsidian:
   vault_path: "/Users/qiming/ObsidianWiki"
+
+# 可选：复用 Davybase 通知脚本
+davybase:
+  notify_path: "/path/to/davybase/scripts/notify.py"
+  secrets_path: "/path/to/davybase/secrets.yaml"
 ```
 
 ### 5. 获取飞书凭证
@@ -93,48 +102,89 @@ obsidian:
 
 ```bash
 # 执行完整流程
-python scripts/pipeline.py
+.venv/bin/python scripts/pipeline.py
 
 # 预览模式（不推送、不保存）
-python scripts/pipeline.py --dry-run
+.venv/bin/python scripts/pipeline.py --dry-run
 
 # 跳过飞书推送
-python scripts/pipeline.py --skip-push
+.venv/bin/python scripts/pipeline.py --skip-push
 
 # 跳过 Obsidian 保存
-python scripts/pipeline.py --skip-save
+.venv/bin/python scripts/pipeline.py --skip-save
 
 # 仅清理 90 天前旧数据
-python scripts/pipeline.py --cleanup
+.venv/bin/python scripts/pipeline.py --cleanup
 ```
 
 ### 独立运行各阶段
 
 ```bash
 # Phase 1-2: 扫描 + 聚类
-python scripts/scan_articles.py > articles.json
+.venv/bin/python scripts/scan_articles.py > articles.json
 
 # Phase 3: 摘要
-cat articles.json | python scripts/summarize.py > summarized.json
+cat articles.json | .venv/bin/python scripts/summarize.py > summarized.json
 
-# Phase 4: 飞书推送
-cat summarized.json | python scripts/feishu_bitable.py
+# Phase 3.5: 飞书多维表格
+cat summarized.json | .venv/bin/python scripts/feishu_bitable.py
+
+# Phase 4: 飞书消息推送
+cat summarized.json | .venv/bin/python scripts/push_feishu.py
 
 # Phase 5: Obsidian 保存
-cat summarized.json | python scripts/save_obsidian.py
+cat summarized.json | .venv/bin/python scripts/save_obsidian.py
 ```
+
+**注意**: blogwatcher 的正确命令是 `blogwatcher-cli articles`（不是 `blogwatcher scan`）。
 
 ### 查看状态
 
 ```bash
 # 查看运行统计
-python scripts/state_db.py
+.venv/bin/python scripts/state_db.py
 
 # 查看日志
-LOG_LEVEL=DEBUG python scripts/pipeline.py
+LOG_LEVEL=DEBUG .venv/bin/python scripts/pipeline.py
 ```
 
+### 本地校验
+
+```bash
+sh scripts/check.sh
+```
+
+## 测试
+
+项目包含 19 个测试用例：
+
+```bash
+# 运行全部测试
+.venv/bin/python -m pytest tests/ -v
+
+# 运行特定模块
+.venv/bin/python -m pytest tests/test_immutability.py -v
+
+# 带覆盖率
+.venv/bin/python -m pytest tests/ --cov=scripts --cov-report=term-missing
+```
+
+测试覆盖：
+- 配置加载优先级和覆盖逻辑
+- 管线编排和错误计数
+- 话题聚类算法正确性
+- 数据库操作（批量插入、参数化查询）
+- 不可变性保证（验证函数不修改输入数据）
+
 ## 配置参考
+
+### 配置加载优先级
+
+1. **环境变量** (最高优先级) — 见下表
+2. **config/secrets.yaml** (推荐主位置) — 项目目录下
+3. **~/.davylinks/secrets.yaml** (备用位置) — 用户目录下
+
+所有配置通过 `scripts/config_loader.py` 统一加载，各模块延迟读取（首次调用时初始化，不在 import 时读取 secrets）。
 
 ### 环境变量
 
@@ -147,17 +197,19 @@ LOG_LEVEL=DEBUG python scripts/pipeline.py
 | `FEISHU_TABLE_ID` | 数据表 ID | `tblxxx` |
 | `LOG_LEVEL` | 日志级别 | `DEBUG`, `INFO`, `WARNING` |
 | `OBSIDIAN_VAULT_PATH` | Obsidian 仓库路径 | `/path/to/vault` |
+| `DAVYBASE_NOTIFY_PATH` | 可选 Davybase 通知脚本 | `/path/to/notify.py` |
+| `DAVYBASE_SECRETS_PATH` | 可选 Davybase 配置 | `/path/to/secrets.yaml` |
 
 ### 日志级别
 
 ```bash
 # 输出详细调试信息
 export LOG_LEVEL=DEBUG
-python scripts/pipeline.py
+.venv/bin/python scripts/pipeline.py
 
 # 仅输出警告和错误
 export LOG_LEVEL=WARNING
-python scripts/pipeline.py
+.venv/bin/python scripts/pipeline.py
 ```
 
 ## 定时任务
@@ -169,7 +221,7 @@ python scripts/pipeline.py
 crontab -e
 
 # 添加每日任务（早上 8 点）
-0 8 * * * cd /Users/qiming/workspace/DavyLinks && /usr/bin/python3 scripts/pipeline.py >> ~/.davylinks/cron.log 2>&1
+0 8 * * * cd /path/to/DavyLinks && .venv/bin/python scripts/pipeline.py >> ~/.davylinks/cron.log 2>&1
 ```
 
 ### 使用 Hermes Agent
@@ -186,21 +238,27 @@ echo $FEISHU_APP_ID
 echo $FEISHU_APP_SECRET
 
 # 2. 测试连接
-python scripts/feishu_bitable.py --test
+.venv/bin/python scripts/feishu_bitable.py --test
 ```
 
 ### LLM 摘要失败
 
 ```bash
 # 1. 检查 LLM 配置
-cat ~/.config/llm-providers.yaml
+sed -n '/llm_providers:/,$p' config/secrets.yaml
 
 # 2. 测试 API 连接
 curl -X POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Authorization: Bearer *** " \
   -H "Content-Type: application/json" \
   -d '{"model":"qwen-plus","messages":[{"role":"user","content":"test"}]}'
 ```
+
+### feishu_bitable.py 问题
+
+- **Token 获取失败 (401/403)**: 检查 `app_id`/`app_secret` 是否正确，确认应用已发布
+- **多维表格权限错误**: 确认飞书应用已添加为多维表格的协作者（编辑权限）
+- **字段不匹配**: 检查飞书表格字段名与代码中一致（日期、标题、来源、摘要、热度评分、链接等）
 
 ### 聚类效果不佳
 

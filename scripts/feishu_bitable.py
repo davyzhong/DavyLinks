@@ -11,10 +11,14 @@
 """
 
 import json
-import sys
 import os
+import sys
 import urllib.request
 from datetime import datetime
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, SCRIPT_DIR)
+from config_loader import get_feishu_config
 
 # ============================================================
 # 配置读取（从 secrets.yaml 或环境变量）
@@ -22,120 +26,25 @@ from datetime import datetime
 
 def load_feishu_config():
     """从 secrets.yaml 加载飞书配置，fallback 到环境变量"""
-    # 尝试从环境变量读取（最优先）
-    app_id = os.environ.get("FEISHU_APP_ID")
-    app_secret = os.environ.get("FEISHU_APP_SECRET")
-    webhook_url = os.environ.get("FEISHU_WEBHOOK_URL")
-    bitable_token = os.environ.get("FEISHU_BITABLE_TOKEN")
-    bitable_table_id = os.environ.get("FEISHU_TABLE_ID")
-
-    if app_id and app_secret:
-        # 环境变量已配置，直接返回
-        return {
-            "app_id": app_id,
-            "app_secret": app_secret,
-            "webhook_url": webhook_url or "https://open.feishu.cn/open-apis/bot/v2/hook/default",
-            "bitable_token": bitable_token or "",
-            "bitable_table_id": bitable_table_id or "",
-        }
-
-    # 尝试从 secrets.yaml 读取
-    config_paths = [
-        os.path.expanduser("~/.davylinks/secrets.yaml"),
-        os.path.join(os.path.dirname(__file__), "..", "config", "secrets.yaml"),
-    ]
-
-    for config_path in config_paths:
-        if os.path.exists(config_path):
-            try:
-                try:
-                    import yaml
-                    with open(config_path, "r") as f:
-                        config = yaml.safe_load(f)
-                except ImportError:
-                    config = _parse_yaml_simple(config_path)
-
-                feishu = config.get("feishu", {})
-                return {
-                    "app_id": feishu.get("app_id", ""),
-                    "app_secret": feishu.get("app_secret", ""),
-                    "webhook_url": feishu.get("webhook_url", ""),
-                    "bitable_token": feishu.get("bitable", {}).get("app_token", ""),
-                    "bitable_table_id": feishu.get("bitable", {}).get("table_id", ""),
-                }
-            except Exception as e:
-                print(f"[WARN] 读取飞书配置失败：{e}", file=sys.stderr)
-
-    # 默认返回（会在运行时提示错误）
-    return {
-        "app_id": "",
-        "app_secret": "",
-        "webhook_url": "",
-        "bitable_token": "",
-        "bitable_table_id": "",
-    }
-
-
-def _parse_yaml_simple(path):
-    """简易 YAML 解析（不依赖 PyYAML）"""
-    result = {}
-    current_top = None
-    current_mid = None
-
-    with open(path, "r") as f:
-        for line in f:
-            stripped = line.rstrip()
-            if not stripped or stripped.startswith("#"):
-                continue
-
-            indent = len(line) - len(line.lstrip())
-
-            m = re.match(r'^(\w[^:]*):\s*$', stripped)
-            if m and indent == 0:
-                current_top = m.group(1).strip()
-                current_mid = None
-                if current_top not in result:
-                    result[current_top] = {}
-                continue
-
-            m = re.match(r'^\s{2}(\w+):\s*(.+)$', stripped)
-            if m and indent == 2 and current_top:
-                key = m.group(1)
-                val = m.group(2).strip().strip('"').strip("'")
-                if isinstance(result.get(current_top), dict):
-                    result[current_top][key] = val
-                continue
-
-            m = re.match(r'^\s{2}(\w[^:]*):\s*$', stripped)
-            if m and indent == 2 and current_top:
-                current_mid = m.group(1).strip()
-                if isinstance(result.get(current_top), dict):
-                    result[current_top][current_mid] = {}
-                continue
-
-            m = re.match(r'^\s{4}(\w+):\s*(.+)$', stripped)
-            if m and indent == 4 and current_top and current_mid:
-                key = m.group(1)
-                val = m.group(2).strip().strip('"').strip("'")
-                if isinstance(result.get(current_top, {}).get(current_mid), dict):
-                    result[current_top][current_mid][key] = val
-                continue
-
-    return result
+    return get_feishu_config()
 
 
 # 加载配置
-_feishu_config = load_feishu_config()
+_feishu_config = None
 
-# 飞书应用凭证（从配置加载）
-FEISHU_APP_ID = _feishu_config["app_id"]
-FEISHU_APP_SECRET = _feishu_config["app_secret"]
-FEISHU_WEBHOOK = _feishu_config["webhook_url"]
 
-# 多维表格（应用自动创建，自带权限）
-BITABLE_APP_TOKEN = _feishu_config["bitable_token"]
-BITABLE_TABLE_ID = _feishu_config["bitable_table_id"]
-BITABLE_URL = f"https://my.feishu.cn/base/{BITABLE_APP_TOKEN}" if BITABLE_APP_TOKEN else ""
+def _get_config():
+    """延迟加载飞书配置（首次调用时初始化）"""
+    global _feishu_config
+    if _feishu_config is None:
+        _feishu_config = load_feishu_config()
+    return _feishu_config
+
+
+def _get(key):
+    """读取配置字段（延迟加载）"""
+    return _get_config()[key]
+
 
 # Token 缓存
 _token_cache = {"token": None, "expire_at": 0}
@@ -148,8 +57,8 @@ def get_tenant_token():
         return _token_cache["token"]
 
     payload = json.dumps({
-        "app_id": FEISHU_APP_ID,
-        "app_secret": FEISHU_APP_SECRET,
+        "app_id": _get("app_id"),
+        "app_secret": _get("app_secret"),
     }).encode("utf-8")
 
     req = urllib.request.Request(
@@ -171,7 +80,7 @@ def get_tenant_token():
 def bitable_request(method, path, body=None):
     """发送飞书 Bitable API 请求"""
     token = get_tenant_token()
-    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{BITABLE_TABLE_ID}{path}"
+    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{_get('bitable_token')}/tables/{_get('bitable_table_id')}{path}"
 
     data = json.dumps(body).encode("utf-8") if body else None
     req = urllib.request.Request(url, data=data, method=method)
@@ -285,7 +194,8 @@ def test_connection():
         else:
             print(f"[ERROR] 读取字段失败: {result}")
 
-        print(f"\n表格地址: {BITABLE_URL}")
+        bitable_url = f"https://my.feishu.cn/base/{_get('bitable_token')}" if _get('bitable_token') else ""
+        print(f"\n表格地址: {bitable_url}")
 
     except Exception as e:
         print(f"[ERROR] 连接失败: {e}")

@@ -13,7 +13,7 @@ import os
 import re
 import hashlib
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import defaultdict
 
 # 导入日志配置
@@ -62,41 +62,65 @@ def load_config():
 # ============================================================
 
 def fetch_wewe_articles():
-    """从 wewe-rss 获取微信公众号文章"""
+    """从 wewe-rss Docker 容器获取微信公众号文章 (直接抓 Atom feed)"""
+    import urllib.request
+    import xml.etree.ElementTree as ET
+
     try:
-        result = subprocess.run(
-            ["wewe-rss", "list"],
-            capture_output=True,
-            text=True,
-            timeout=60
+        req = urllib.request.Request(
+            "http://localhost:4000/feeds/all.atom",
+            headers={"User-Agent": "DavyLinks/1.0"}
         )
-        articles = json.loads(result.stdout)
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = resp.read()
+
+        root = ET.fromstring(data)
+        ns = {"atom": "http://www.w3.org/2005/Atom"}
+        articles = []
+
+        for entry in root.findall("atom:entry", ns):
+            title_el = entry.find("atom:title", ns)
+            link_el = entry.find("atom:link", ns)
+            updated_el = entry.find("atom:updated", ns)
+
+            if title_el is None or link_el is None:
+                continue
+
+            url = link_el.get("href", "")
+            title = (title_el.text or "").strip()
+            published = updated_el.text[:10] if updated_el is not None and updated_el.text else ""
+
+            articles.append({
+                "title": title,
+                "url": url,
+                "source": "微信公众号",
+                "published_at": published,
+                "id": hash_url(url),
+            })
+
         logger.info("[wewe-rss] 获取到 %d 篇公众号文章", len(articles))
         return articles
-    except FileNotFoundError:
-        logger.debug("wewe-rss 未安装，跳过")
-        return []
     except Exception as e:
         logger.warning("wewe-rss 抓取失败：%s", e)
         return []
 
 
 def fetch_blogwatcher_articles():
-    """从 blogwatcher-cli 获取 RSS 文章"""
+    """从 blogwatcher-cli 获取未读 RSS 文章"""
     try:
         result = subprocess.run(
-            ["blogwatcher", "scan"],
+            ["blogwatcher-cli", "articles"],
             capture_output=True,
             text=True,
-            timeout=120
+            timeout=30
         )
         if result.returncode != 0:
-            logger.warning("blogwatcher scan 返回非零：%s", result.stderr.strip())
+            logger.warning("blogwatcher-cli articles 返回非零：%s", result.stderr.strip())
             return []
 
         return parse_blogwatcher_output(result.stdout)
     except subprocess.TimeoutExpired:
-        logger.warning("blogwatcher scan 超时 (120s)")
+        logger.warning("blogwatcher-cli articles 超时 (30s)")
         return []
     except FileNotFoundError:
         logger.error("blogwatcher-cli 未安装")
@@ -107,30 +131,62 @@ def fetch_blogwatcher_articles():
 
 
 def parse_blogwatcher_output(text):
-    """解析 blogwatcher 的文本输出为文章列表"""
-    articles = []
-    lines = text.strip().split("\n")
+    """解析 blogwatcher-cli articles 的文本输出为文章列表
 
-    for line in lines:
-        if not line.strip():
+    格式示例:
+      [489] [new] Title Here
+           Blog: Hacker News
+           URL: https://...
+           Published: 2026-05-04
+    """
+    articles = []
+    current = {}
+
+    for line in text.split("\n"):
+        line_stripped = line.strip()
+        if not line_stripped:
+            # 空行 = 一篇文章结束
+            if current.get("title") and current.get("url"):
+                current["id"] = hash_url(current["url"])
+                articles.append(current)
+            current = {}
             continue
 
-        parts = line.split("|")
-        if len(parts) >= 4:
-            articles.append({
-                "title": parts[0].strip(),
-                "url": parts[1].strip(),
-                "source": parts[2].strip(),
-                "published_at": parts[3].strip(),
-                "id": hash_url(parts[1].strip()),
-            })
+        # 标题行: [id] [new] Title
+        m = re.match(r'\[\d+\]\s+\[new\]\s+(.*)', line_stripped)
+        if m:
+            current["title"] = m.group(1).strip()
+            continue
+
+        # Blog: ...
+        m = re.match(r'Blog:\s+(.*)', line_stripped)
+        if m:
+            current["source"] = m.group(1).strip()
+            continue
+
+        # URL: ...
+        m = re.match(r'URL:\s+(.*)', line_stripped)
+        if m:
+            current["url"] = m.group(1).strip()
+            continue
+
+        # Published: ...
+        m = re.match(r'Published:\s+(.*)', line_stripped)
+        if m:
+            current["published_at"] = m.group(1).strip()
+            continue
+
+    # 处理最后一篇（如果文件不以空行结尾）
+    if current.get("title") and current.get("url"):
+        current["id"] = hash_url(current["url"])
+        articles.append(current)
 
     return articles
 
 
 def hash_url(url):
-    """为 URL 生成短 hash"""
-    return int(hashlib.md5(url.encode()).hexdigest()[:8], 16)
+    """为 URL 生成短 hash（64 bit，碰撞概率极低）"""
+    return int(hashlib.md5(url.encode()).hexdigest()[:16], 16)
 
 
 # ============================================================
@@ -187,32 +243,48 @@ def should_cluster(title1, title2):
     return False
 
 
-def build_entity_index(articles):
-    """构建实体名倒排索引
+def build_entity_index(article_features):
+    """构建实体名倒排索引（使用预计算的特征）
 
     Returns:
         dict: {entity: [article_indices]}
     """
     index = defaultdict(list)
-    for i, article in enumerate(articles):
-        entities = extract_entities(article.get("title", ""))
-        for entity in entities:
+    for i, features in enumerate(article_features):
+        for entity in features.get("entities", set()):
             index[entity].append(i)
     return index
 
 
-def build_candidate_pairs(articles, entity_index):
+def build_bigram_index(article_features):
+    """构建中文二元组倒排索引"""
+    index = defaultdict(list)
+    for i, features in enumerate(article_features):
+        for bigram in features.get("bigrams", set()):
+            index[bigram].append(i)
+    return index
+
+
+def _add_pairs_from_index(candidates, index, max_bucket_size=50):
+    """从倒排索引中添加候选对，跳过过大的泛化桶。"""
+    for indices in index.values():
+        if len(indices) > max_bucket_size:
+            continue
+        for i in range(len(indices)):
+            for j in range(i + 1, len(indices)):
+                candidates.add((indices[i], indices[j]))
+
+
+def build_candidate_pairs(articles, entity_index, bigram_index=None):
     """根据实体索引构建候选比较对
 
     Returns:
         set: {(i, j), ...} 需要比较的文章对索引
     """
     candidates = set()
-    for entity, indices in entity_index.items():
-        # 同一实体下的所有文章对
-        for i in range(len(indices)):
-            for j in range(i + 1, len(indices)):
-                candidates.add((indices[i], indices[j]))
+    _add_pairs_from_index(candidates, entity_index)
+    if bigram_index:
+        _add_pairs_from_index(candidates, bigram_index)
     return candidates
 
 
@@ -264,11 +336,12 @@ def cluster_by_topic(articles):
         })
 
     # ========== Phase 2: 构建倒排索引 ==========
-    entity_index = build_entity_index(articles)
+    entity_index = build_entity_index(article_features)
+    bigram_index = build_bigram_index(article_features)
     logger.debug("实体索引：%d 个实体，覆盖 %d 篇文章", len(entity_index), sum(len(v) for v in entity_index.values()))
 
     # ========== Phase 3: 获取候选对 ==========
-    candidate_pairs = build_candidate_pairs(articles, entity_index)
+    candidate_pairs = build_candidate_pairs(articles, entity_index, bigram_index)
 
     # 添加孤立文章的自循环（确保它们被单独分组）
     all_indexed = set()
@@ -416,6 +489,8 @@ def main():
     logger.info("聚类为 %d 个话题（%d 个多源交叉）", len(clustered), multi_source)
 
     output = {
+        "scanned": len(all_articles),
+        "filtered": len(filtered),
         "articles": clustered,
         "total": len(clustered),
         "multi_source": multi_source,
@@ -425,7 +500,10 @@ def main():
 
 
 def filter_by_keywords(articles, config):
-    """按关键词过滤 + 评分"""
+    """按关键词过滤 + 评分
+
+    返回新列表，不修改原始 article。
+    """
     global_keywords = [k.lower() for k in config.get("global_keywords", [])]
     source_map = {s["name"]: s for s in config.get("sources", [])}
 
@@ -434,14 +512,13 @@ def filter_by_keywords(articles, config):
         source_name = article.get("source", "")
         source_config = source_map.get(source_name, {})
 
-        if source_config.get("category"):
-            article["category"] = source_config["category"]
-
         score = calculate_relevance(article, source_config, global_keywords)
-        article["relevance_score"] = score
+        enriched = {**article, "relevance_score": score}
+        if source_config.get("category"):
+            enriched["category"] = source_config["category"]
 
         if score >= 8:
-            scored.append(article)
+            scored.append(enriched)
 
     scored.sort(key=lambda x: x.get("relevance_score", 0), reverse=True)
     return scored
@@ -470,8 +547,10 @@ def calculate_relevance(article, source_config, global_keywords):
     pub_date = article.get("published_at", "")
     if pub_date:
         try:
-            dt = datetime.fromisoformat(pub_date.replace("Z", "+00:00").replace("+00:00", ""))
-            hours_ago = (datetime.now() - dt).total_seconds() / 3600
+            dt = datetime.fromisoformat(pub_date.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            hours_ago = (datetime.now(timezone.utc) - dt).total_seconds() / 3600
             if hours_ago <= 24:
                 score += 5
             elif hours_ago <= 48:

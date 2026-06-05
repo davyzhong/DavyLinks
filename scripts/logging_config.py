@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """DavyLinks: 统一日志配置"""
 
+from __future__ import annotations
+
 import logging
 import sys
 import os

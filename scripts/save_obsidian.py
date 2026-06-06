@@ -28,8 +28,9 @@ def load_digest_dir():
     return os.path.join(load_vault_path(), "知识助理", "每日精华")
 
 
-VAULT_PATH = load_vault_path()
-DIGEST_DIR = load_digest_dir()
+def get_digest_dir():
+    """Return the daily digest directory path (lazy, reads config on each call)."""
+    return os.path.join(load_vault_path(), "知识助理", "每日精华")
 
 
 def generate_note_content(top5, other, today):
@@ -106,8 +107,9 @@ def save_daily_note(top5, other):
     """保存每日笔记到 Obsidian"""
     today = datetime.now().strftime("%Y-%m-%d")
 
-    os.makedirs(DIGEST_DIR, exist_ok=True)
-    filepath = os.path.join(DIGEST_DIR, f"{today}.md")
+    digest_dir = get_digest_dir()
+    os.makedirs(digest_dir, exist_ok=True)
+    filepath = os.path.join(digest_dir, f"{today}.md")
 
     content = generate_note_content(top5, other, today)
 
@@ -173,7 +175,7 @@ def main():
     args = parser.parse_args()
 
     if args.weekly:
-        generate_weekly_note(DIGEST_DIR)
+        generate_weekly_note(get_digest_dir())
         return
 
     # 读取输入

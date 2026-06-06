@@ -3,7 +3,7 @@
 
 import sqlite3
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 DB_PATH = os.path.expanduser("~/.davylinks/state.db")
 

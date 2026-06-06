@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""DavyLinks 主流程：串联全部 5 个阶段
+"""DavyLinks 主流程：串联全部 6 个阶段
 
 用法:
     python pipeline.py                # 完整执行
-    python pipeline.py --dry-run      # 跑到推送前停止
+    python pipeline.py --dry-run      # 扫描后停止（不摘要、不推送）
     python pipeline.py --skip-push    # 跳过飞书推送
     python pipeline.py --skip-save    # 跳过 Obsidian 保存
     python pipeline.py --cleanup      # 清理旧记录

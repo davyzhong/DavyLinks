@@ -275,7 +275,7 @@ def _add_pairs_from_index(candidates, index, max_bucket_size=50):
                 candidates.add((indices[i], indices[j]))
 
 
-def build_candidate_pairs(articles, entity_index, bigram_index=None):
+def build_candidate_pairs(entity_index, bigram_index=None):
     """根据实体索引构建候选比较对
 
     Returns:
@@ -341,7 +341,7 @@ def cluster_by_topic(articles):
     logger.debug("实体索引：%d 个实体，覆盖 %d 篇文章", len(entity_index), sum(len(v) for v in entity_index.values()))
 
     # ========== Phase 3: 获取候选对 ==========
-    candidate_pairs = build_candidate_pairs(articles, entity_index, bigram_index)
+    candidate_pairs = build_candidate_pairs(entity_index, bigram_index)
 
     # 添加孤立文章的自循环（确保它们被单独分组）
     all_indexed = set()

@@ -16,8 +16,15 @@ cp config/secrets.example.yaml config/secrets.yaml
 # 运行完整管线
 .venv/bin/python scripts/pipeline.py
 
-# 预览模式 (不推送、不保存)
+# 预览模式 (不摘要、不推送、不保存)
 .venv/bin/python scripts/pipeline.py --dry-run
+
+# 跳过飞书推送 / 跳过 Obsidian 保存
+.venv/bin/python scripts/pipeline.py --skip-push
+.venv/bin/python scripts/pipeline.py --skip-save
+
+# 清理 90 天前的旧记录
+.venv/bin/python scripts/pipeline.py --cleanup
 
 # 查看运行统计
 .venv/bin/python scripts/state_db.py
@@ -43,7 +50,7 @@ sh scripts/check.sh
 DavyLinks/
 ├── scripts/
 │   ├── config_loader.py       # 统一配置加载 (secrets.yaml + 环境变量)
-│   ├── pipeline.py            # 主入口 (六阶段编排)
+│   ├── pipeline.py            # 主入口 (5 脚本 7 阶段编排)
 │   ├── scan_articles.py       # Phase 1-2: 扫描 + 聚类 (O(n) 倒排索引)
 │   ├── summarize.py           # Phase 3: LLM 并行摘要 (4 路 fallback)
 │   ├── feishu_bitable.py      # Phase 3.5: 飞书多维表格写入
@@ -79,17 +86,23 @@ RSS/Atom → 扫描去重 → 话题聚类 → AI 摘要 → 飞书表格 → �
 - **blogwatcher-cli 命令**: 用 `blogwatcher-cli articles` (不是 `blogwatcher scan`)
 - **LLM API 格式**: Kimi/Zhipu 用 Anthropic 格式，Qwen/MiniMax 用 OpenAI 格式
 - **聚类阈值**: `chinese_overlap >= 0.35`，调低可增加敏感度
+- **相关性门槛**: `relevance_score >= 8` 才进入后续流程（来源权重×2 + 关键词命中）
+- **分类来源**: 每个 RSS 源的 `category` 字段在 `config/sources.json` 中配置，由 `scan_articles.py` 自动注入
 - **飞书权限**: 应用需添加为多维表格协作者 (编辑权限)
 - **状态库位置**: `~/.davylinks/state.db` (90 天自动清理)
 - **不可变数据流**: 各阶段函数返回新 dict，不修改输入数据
 - **SQL 安全**: `cleanup_old` 使用参数化查询，`mark_processed` 使用 `executemany`
 - **延迟配置加载**: `feishu_bitable.py`、`push_feishu.py` 在首次调用时加载配置
+- **Obsidian 周报**: `save_obsidian.py --weekly` 汇总本周每日精华生成周报
 
 ## 故障排查
 
 ```bash
 # 测试飞书连接
 .venv/bin/python scripts/feishu_bitable.py --test
+
+# 查看状态库统计
+.venv/bin/python scripts/state_db.py
 
 # 调试模式
 LOG_LEVEL=DEBUG .venv/bin/python scripts/pipeline.py

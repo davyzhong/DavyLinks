@@ -116,6 +116,7 @@ RSS/Atom → 扫描去重 → 话题聚类 → AI 摘要 → 飞书表格 → �
 |------|------|--------|
 | 文档导航 | [docs/README.md](docs/README.md) | 找不到文档时 |
 | 知识库导航 | [knowledge/README.md](knowledge/README.md) | 了解设计背景时 |
+| **设计报告** | [docs/design/design-report.md](docs/design/design-report.md) | 全面理解项目时 |
 | 当前设计 | [docs/design/current-design.md](docs/design/current-design.md) | 理解设计原则与参数 |
 | 架构详解 | [docs/architecture/](docs/architecture/) | 改代码前 |
 | 故障排查 | [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md) | 出问题时 |

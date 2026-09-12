@@ -24,6 +24,7 @@ docs/
 │   └── state-db-schema.md # SQLite 状态库 Schema
 │
 └── design/                # 设计文档
+    ├── design-report.md         # 项目设计报告（权威总览）
     ├── original-requirement.md  # 原始需求文档（历史）
     └── current-design.md        # 当前设计文档
 ```
@@ -32,6 +33,7 @@ docs/
 
 | 我想... | 看这里 |
 |---------|--------|
+| **全面理解本项目** | [design/design-report.md](design/design-report.md) |
 | 快速开始 | [guides/quickstart.md](guides/quickstart.md) |
 | 配置飞书 | [guides/feishu-setup.md](guides/feishu-setup.md) |
 | 配置 Obsidian | [guides/obsidian-setup.md](guides/obsidian-setup.md) |

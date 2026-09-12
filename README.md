@@ -59,13 +59,22 @@ Phase 5: 沉淀 Obsidian (save_obsidian.py)
 ```
 DavyLinks/
 ├── README.md                   # 本文件
-├── CLAUDE.md                   # Claude Code 快速参考
-├── ARCHITECTURE.md             # 架构设计文档
-├── USAGE.md                    # 详细使用指南
-├── OPTIMIZATION_COMPLETE.md    # 优化历史报告
-├── requirement.md              # 原始设计文档 (历史参考)
+├── CLAUDE.md                   # AI 助手指令 (唯一来源)
+├── AGENTS.md                   # 存根，指向 CLAUDE.md
+├── CHANGELOG.md                # 版本变更记录
+├── CONTRIBUTING.md             # 开发规范
 ├── requirements.txt            # Python 依赖
 ├── .gitignore                  # Git 忽略规则
+├── docs/                       # 项目文档 (怎么用) → docs/README.md 导航
+│   ├── architecture/           # 架构设计 (overview/pipeline/clustering/summarization/data-flow)
+│   ├── guides/                 # 使用指南 (quickstart/configuration/feishu/obsidian/troubleshooting)
+│   ├── api/                    # 接口文档 (CLI/配置格式/数据库 Schema)
+│   └── design/                 # 设计文档 (当前设计 + 原始需求归档)
+├── knowledge/                  # 知识库 (为什么这么做) → knowledge/README.md 导航
+│   ├── domain/                 # 领域知识 (RSS/LLM/飞书/Obsidian/资讯源)
+│   ├── decisions/              # 架构决策记录 ADR (001-008)
+│   ├── evolution/              # 演进记录 (v1.0/v2.0/方向调整)
+│   └── reference/              # 速查手册 (信息源/LLM API/飞书 API)
 ├── config/
 │   ├── sources.json            # 信息源 + 关键词配置
 │   └── secrets.example.yaml    # 配置模板
@@ -92,6 +101,17 @@ DavyLinks/
 └── skills/
     └── davylinks-pipeline.md   # Hermes skill 定义
 ```
+
+## 文档
+
+| 文档 | 内容 |
+|------|------|
+| [docs/README.md](docs/README.md) | 文档总导航 |
+| [docs/guides/quickstart.md](docs/guides/quickstart.md) | 快速上手 |
+| [docs/design/current-design.md](docs/design/current-design.md) | 当前设计与设计原则 |
+| [knowledge/README.md](knowledge/README.md) | 知识库导航 |
+| [knowledge/decisions/](knowledge/decisions/) | 8 条架构决策记录 (ADR) |
+| [knowledge/evolution/direction-changes.md](knowledge/evolution/direction-changes.md) | 项目方向调整史 |
 
 ## 配置说明
 

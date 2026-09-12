@@ -1,6 +1,8 @@
-# Davybase (DavyLinks)
+# DavyLinks
 
 **Python 3.9+** | 科技资讯聚合管线 | 飞书 + Obsidian 输出
+
+> 本文件是 AI 助手的唯一指令来源。AGENTS.md 仅为其存根，指向本文件。
 
 ## 快速命令
 
@@ -48,16 +50,29 @@ sh scripts/check.sh
 
 ```
 DavyLinks/
+├── CLAUDE.md                  # AI 助手指令 (本文件)
+├── CHANGELOG.md               # 版本变更记录
+├── docs/                      # 项目文档 (怎么用)
+│   ├── architecture/          # 架构设计 (pipeline/clustering/summarization/data-flow)
+│   ├── guides/                # 使用指南 (quickstart/configuration/setup/troubleshooting)
+│   ├── api/                   # 接口文档 (CLI/配置格式/数据库Schema)
+│   └── design/                # 设计文档 (当前设计 + 历史需求)
+├── knowledge/                 # 知识库 (为什么这么做)
+│   ├── domain/                # 领域知识 (RSS/LLM/飞书/Obsidian)
+│   ├── decisions/             # 架构决策记录 ADR
+│   ├── evolution/             # 项目演进记录
+│   └── reference/             # 速查手册
 ├── scripts/
 │   ├── config_loader.py       # 统一配置加载 (secrets.yaml + 环境变量)
-│   ├── pipeline.py            # 主入口 (5 脚本 7 阶段编排)
+│   ├── pipeline.py            # 主入口 (六阶段编排)
 │   ├── scan_articles.py       # Phase 1-2: 扫描 + 聚类 (O(n) 倒排索引)
 │   ├── summarize.py           # Phase 3: LLM 并行摘要 (4 路 fallback)
 │   ├── feishu_bitable.py      # Phase 3.5: 飞书多维表格写入
 │   ├── push_feishu.py         # Phase 4: 飞书消息推送
 │   ├── save_obsidian.py       # Phase 5: Obsidian 沉淀
 │   ├── state_db.py            # SQLite 状态管理
-│   └── logging_config.py      # 统一日志配置
+│   ├── logging_config.py      # 统一日志配置
+│   └── check.sh               # 本地校验脚本
 ├── config/
 │   ├── sources.json           # 信息源 + 关键词配置
 │   └── secrets.yaml           # 密钥 (不提交 git)
@@ -92,8 +107,27 @@ RSS/Atom → 扫描去重 → 话题聚类 → AI 摘要 → 飞书表格 → �
 - **状态库位置**: `~/.davylinks/state.db` (90 天自动清理)
 - **不可变数据流**: 各阶段函数返回新 dict，不修改输入数据
 - **SQL 安全**: `cleanup_old` 使用参数化查询，`mark_processed` 使用 `executemany`
-- **延迟配置加载**: `feishu_bitable.py`、`push_feishu.py` 在首次调用时加载配置
+- **延迟配置加载**: `feishu_bitable.py`、`push_feishu.py`、`save_obsidian.py` 在首次调用时加载配置
 - **Obsidian 周报**: `save_obsidian.py --weekly` 汇总本周每日精华生成周报
+
+## 文档体系
+
+| 文档 | 位置 | 何时看 |
+|------|------|--------|
+| 文档导航 | [docs/README.md](docs/README.md) | 找不到文档时 |
+| 知识库导航 | [knowledge/README.md](knowledge/README.md) | 了解设计背景时 |
+| 当前设计 | [docs/design/current-design.md](docs/design/current-design.md) | 理解设计原则与参数 |
+| 架构详解 | [docs/architecture/](docs/architecture/) | 改代码前 |
+| 故障排查 | [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md) | 出问题时 |
+| 设计决策 | [knowledge/decisions/](knowledge/decisions/) | 理解"为什么"时 |
+
+## 文档维护规范
+
+- 改动管线行为 → 同步更新 `docs/architecture/pipeline.md` + `docs/design/current-design.md`
+- 新增重要设计决策 → 在 `knowledge/decisions/` 新增 ADR（三位序号递增）
+- 修改配置格式 → 同步更新 `docs/api/config-format.md`
+- 版本级变更 → 记录到 `CHANGELOG.md`
+- 根目录只保留：`README.md`、`CLAUDE.md`、`CHANGELOG.md`、`CONTRIBUTING.md`
 
 ## 故障排查
 

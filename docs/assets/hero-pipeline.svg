@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94A3B8"/>
+    </marker>
+    <linearGradient id="heroBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#EEF2FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="920" height="560" rx="16" fill="url(#heroBg)"/>
+  <text x="460" y="38" text-anchor="middle" font-size="19" font-weight="700" fill="#1E293B">DavyLinks 六阶段管线 — 每天 100+ 篇资讯 → 5 条精华</text>
+
+  <!-- ============ 左侧：信息源 ============ -->
+  <text x="105" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">信息源</text>
+  <g font-size="12" fill="#334155">
+    <rect x="30" y="92"  width="150" height="34" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/><text x="105" y="113" text-anchor="middle">36氪 · 权重 5</text>
+    <rect x="30" y="134" width="150" height="34" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/><text x="105" y="155" text-anchor="middle">量子位 · 权重 5</text>
+    <rect x="30" y="176" width="150" height="34" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/><text x="105" y="197" text-anchor="middle">少数派 · 权重 4</text>
+    <rect x="30" y="218" width="150" height="34" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/><text x="105" y="239" text-anchor="middle">IT之家 · 权重 3</text>
+    <rect x="30" y="260" width="150" height="34" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/><text x="105" y="281" text-anchor="middle">Hacker News · 权重 3</text>
+    <rect x="30" y="302" width="150" height="34" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/><text x="105" y="323" text-anchor="middle">微信公众号 (wewe-rss)</text>
+  </g>
+  <text x="105" y="365" text-anchor="middle" font-size="11" fill="#64748B">config/sources.json</text>
+  <text x="105" y="381" text-anchor="middle" font-size="11" fill="#64748B">配置驱动 · 加源不改代码</text>
+
+  <!-- ============ 中间：管线六阶段 ============ -->
+  <g>
+    <!-- Phase 1-2 -->
+    <rect x="255" y="92" width="180" height="92" rx="10" fill="#2563EB"/>
+    <text x="345" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Phase 1-2 扫描·聚类</text>
+    <text x="345" y="138" text-anchor="middle" font-size="11" fill="#DBEAFE">URL 去重 (64-bit hash)</text>
+    <text x="345" y="154" text-anchor="middle" font-size="11" fill="#DBEAFE">关键词过滤 · score≥8</text>
+    <text x="345" y="170" text-anchor="middle" font-size="11" fill="#DBEAFE">话题聚类 (倒排索引 O(n))</text>
+
+    <!-- Phase 3 -->
+    <rect x="255" y="208" width="180" height="92" rx="10" fill="#7C3AED"/>
+    <text x="345" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Phase 3 AI 摘要</text>
+    <text x="345" y="254" text-anchor="middle" font-size="11" fill="#EDE9FE">4 路 LLM 并行</text>
+    <text x="345" y="270" text-anchor="middle" font-size="11" fill="#EDE9FE">Qwen/Kimi/Zhipu/MiniMax</text>
+    <text x="345" y="286" text-anchor="middle" font-size="11" fill="#EDE9FE">失败自动 fallback</text>
+
+    <!-- Phase 3.5 -->
+    <rect x="255" y="324" width="180" height="60" rx="10" fill="#0891B2"/>
+    <text x="345" y="348" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Phase 3.5 多维表格</text>
+    <text x="345" y="368" text-anchor="middle" font-size="11" fill="#CFFAFE">全量档案 · 每批 500 条</text>
+
+    <!-- Phase 4 -->
+    <rect x="255" y="408" width="180" height="60" rx="10" fill="#059669"/>
+    <text x="345" y="432" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Phase 4 群消息推送</text>
+    <text x="345" y="452" text-anchor="middle" font-size="11" fill="#D1FAE5">飞书卡片 · TOP 5 精华</text>
+
+    <!-- Phase 5 -->
+    <rect x="255" y="492" width="180" height="52" rx="10" fill="#D97706"/>
+    <text x="345" y="514" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Phase 5 Obsidian</text>
+    <text x="345" y="532" text-anchor="middle" font-size="11" fill="#FEF3C7">TOP 5 沉淀 + 周报</text>
+  </g>
+
+  <!-- 管线内部箭头 -->
+  <g stroke="#94A3B8" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="345" y1="184" x2="345" y2="204"/>
+    <line x1="345" y1="300" x2="345" y2="320"/>
+    <line x1="345" y1="384" x2="345" y2="404"/>
+    <line x1="345" y1="468" x2="345" y2="488"/>
+  </g>
+
+  <!-- 源 → Phase1-2 -->
+  <g stroke="#94A3B8" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="180" y1="140" x2="251" y2="130"/>
+  </g>
+
+  <!-- ============ 右侧：数据规模递减 ============ -->
+  <text x="660" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">数据漏斗</text>
+  <g font-size="12">
+    <rect x="520" y="100" width="280" height="44" rx="8" fill="#E2E8F0"/>
+    <text x="660" y="127" text-anchor="middle" fill="#334155" font-weight="600">扫描 100+ 篇 / 天</text>
+
+    <rect x="540" y="156" width="240" height="44" rx="8" fill="#BFDBFE"/>
+    <text x="660" y="183" text-anchor="middle" fill="#1E3A8A" font-weight="600">关键词过滤后 ~20-80 篇</text>
+
+    <rect x="560" y="212" width="200" height="44" rx="8" fill="#DDD6FE"/>
+    <text x="660" y="239" text-anchor="middle" fill="#4C1D95" font-weight="600">聚类合并 → ~15 话题</text>
+
+    <rect x="580" y="268" width="160" height="44" rx="8" fill="#C4B5FD"/>
+    <text x="660" y="295" text-anchor="middle" fill="#4C1D95" font-weight="700">TOP 5 精华</text>
+  </g>
+
+  <!-- ============ 右下：多源交叉加成 ============ -->
+  <rect x="520" y="340" width="370" height="204" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="705" y="368" text-anchor="middle" font-size="13" font-weight="700" fill="#1E293B">核心机制：多源交叉验证</text>
+  <text x="705" y="390" text-anchor="middle" font-size="11" fill="#64748B">同一事件被多家报道 → 合并为一个话题 → 加分</text>
+  <g font-size="12" fill="#334155">
+    <rect x="540" y="404" width="120" height="30" rx="6" fill="#F1F5F9" stroke="#CBD5E1"/><text x="600" y="423" text-anchor="middle">36氪 报道</text>
+    <rect x="540" y="440" width="120" height="30" rx="6" fill="#F1F5F9" stroke="#CBD5E1"/><text x="600" y="459" text-anchor="middle">量子位 报道</text>
+    <rect x="540" y="476" width="120" height="30" rx="6" fill="#F1F5F9" stroke="#CBD5E1"/><text x="600" y="495" text-anchor="middle">Hacker News 报道</text>
+  </g>
+  <text x="700" y="450" text-anchor="middle" font-size="20" fill="#94A3B8">→</text>
+  <rect x="730" y="420" width="140" height="70" rx="8" fill="#DCFCE7" stroke="#16A34A"/>
+  <text x="800" y="448" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">同一话题</text>
+  <text x="800" y="468" text-anchor="middle" font-size="11" fill="#166534">cross_bonus +45</text>
+  <text x="800" y="483" text-anchor="middle" font-size="10" fill="#15803D">排名大幅提升</text>
+
+  <!-- 出口标注 -->
+  <g font-size="11" fill="#64748B">
+    <line x1="435" y1="354" x2="516" y2="300" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="470" y="330" text-anchor="middle">全量</text>
+    <line x1="435" y1="438" x2="516" y2="292" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="472" y="370" text-anchor="middle">TOP 5</text>
+  </g>
+</svg>

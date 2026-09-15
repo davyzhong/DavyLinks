@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="470" viewBox="0 0 920 470" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+  <rect width="920" height="470" rx="16" fill="#F8FAFC"/>
+  <text x="460" y="36" text-anchor="middle" font-size="18" font-weight="700" fill="#1E293B">话题聚类：倒排索引 + Union-Find</text>
+  <text x="460" y="56" text-anchor="middle" font-size="12" fill="#64748B">同一事件的多源报道自动合并为一个话题，避免重复推送</text>
+
+  <!-- 输入文章 -->
+  <text x="130" y="92" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">① 扫描到的文章</text>
+  <g font-size="11.5" fill="#334155">
+    <rect x="25" y="104" width="210" height="40" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="35" y="120">36氪：vLLM 首日支持</text><text x="35" y="136" font-weight="700">DeepSeek V4 推理</text>
+    <rect x="25" y="152" width="210" height="40" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="35" y="168">量子位：DeepSeek V4</text><text x="35" y="184" font-weight="700">vLLM 推理优化揭秘</text>
+    <rect x="25" y="200" width="210" height="40" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="35" y="216">少数派：效率工具推荐</text><text x="35" y="232">2026 年度合集</text>
+  </g>
+
+  <!-- 特征提取 -->
+  <g stroke="#94A3B8" stroke-width="2" marker-end="url(#arr2)">
+    <line x1="240" y1="124" x2="286" y2="124"/>
+    <line x1="240" y1="172" x2="286" y2="172"/>
+    <line x1="240" y1="220" x2="286" y2="220"/>
+  </g>
+  <text x="360" y="92" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">② 特征预计算</text>
+  <g font-size="11" fill="#334155">
+    <rect x="295" y="104" width="130" height="40" rx="8" fill="#EDE9FE" stroke="#A78BFA"/>
+    <text x="360" y="120" text-anchor="middle" fill="#4C1D95">英文实体</text>
+    <text x="360" y="136" text-anchor="middle" font-weight="700" fill="#4C1D95">vLLM · DeepSeek · V4</text>
+    <rect x="295" y="152" width="130" height="40" rx="8" fill="#EDE9FE" stroke="#A78BFA"/>
+    <text x="360" y="168" text-anchor="middle" fill="#4C1D95">英文实体</text>
+    <text x="360" y="184" text-anchor="middle" font-weight="700" fill="#4C1D95">vLLM · DeepSeek · V4</text>
+    <rect x="295" y="200" width="130" height="40" rx="8" fill="#F1F5F9" stroke="#CBD5E1"/>
+    <text x="360" y="216" text-anchor="middle" fill="#64748B">中文二元组</text>
+    <text x="360" y="232" text-anchor="middle" fill="#64748B">效率/率工/工具/…</text>
+  </g>
+
+  <!-- 倒排索引 -->
+  <g stroke="#94A3B8" stroke-width="2" marker-end="url(#arr2)">
+    <line x1="430" y1="150" x2="486" y2="150"/>
+  </g>
+  <text x="560" y="92" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">③ 倒排索引（只比较共享特征的对）</text>
+  <rect x="495" y="104" width="130" height="150" rx="10" fill="#0F172A"/>
+  <g font-size="11.5" fill="#7DD3FC" font-family="Menlo, monospace">
+    <text x="510" y="128">"vLLM"    → [1,2]</text>
+    <text x="510" y="150">"DeepSeek"→ [1,2]</text>
+    <text x="510" y="172">"V4"      → [1,2]</text>
+    <text x="510" y="194">"效率"    → [3]</text>
+    <text x="510" y="216">"工具"    → [3]</text>
+    <text x="510" y="240" fill="#64748B">max_bucket=50</text>
+  </g>
+
+  <!-- 聚类结果 -->
+  <g stroke="#94A3B8" stroke-width="2" marker-end="url(#arr2)">
+    <line x1="630" y1="150" x2="676" y2="150"/>
+  </g>
+  <text x="795" y="92" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">④ 聚类结果</text>
+  <rect x="685" y="104" width="220" height="92" rx="10" fill="#DCFCE7" stroke="#16A34A"/>
+  <text x="795" y="128" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">话题 A：DeepSeek V4 推理</text>
+  <text x="795" y="148" text-anchor="middle" font-size="11" fill="#166534">来源数 = 2（36氪 + 量子位）</text>
+  <text x="795" y="168" text-anchor="middle" font-size="11" font-weight="700" fill="#15803D">cross_bonus = min(2,5)×15 = +30</text>
+  <rect x="685" y="210" width="220" height="60" rx="10" fill="#F1F5F9" stroke="#CBD5E1"/>
+  <text x="795" y="234" text-anchor="middle" font-size="12" fill="#475569">话题 B：效率工具合集</text>
+  <text x="795" y="254" text-anchor="middle" font-size="11" fill="#64748B">单源，无加成</text>
+
+  <!-- 底部性能条 -->
+  <rect x="25" y="310" width="870" height="130" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="60" y="340" font-size="13" font-weight="700" fill="#1E293B">为什么不用两两比较？</text>
+  <g font-size="12" fill="#334155">
+    <rect x="60"  y="356" width="380" height="34" rx="6" fill="#FEE2E2"/>
+    <text x="72" y="378" fill="#991B1B">暴力 O(n²)：100 篇 = 4,950 次比较 ≈ 1,200ms</text>
+    <rect x="60"  y="398" width="120" height="34" rx="6" fill="#DCFCE7"/>
+    <text x="72" y="420" fill="#166534">倒排索引：~127 次 ≈ 0.5ms</text>
+    <rect x="470" y="360" width="390" height="66" rx="8" fill="#F8FAFC" stroke="#E2E8F0"/>
+    <text x="665" y="386" text-anchor="middle" font-size="24" font-weight="800" fill="#16A34A">提速 2400×</text>
+    <text x="665" y="410" text-anchor="middle" font-size="11" fill="#64748B">比较次数减少 80-95%，聚类质量不变</text>
+  </g>
+</svg>

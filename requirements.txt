@@ -1,7 +1,7 @@
 # DavyLinks Dependencies
 # Install: pip install -r requirements.txt
 
-# YAML parsing (optional, has fallback)
+# YAML parsing (required)
 pyyaml>=6.0
 
 # Development

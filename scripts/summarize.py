@@ -65,7 +65,7 @@ def _build_llm_configs(providers):
         if not conf.get("api_key") or not conf.get("base_url"):
             continue
 
-        api_format = "anthropic" if name in ANTHROPIC_PROVIDERS else "openai"
+        api_format = "anthropic" if name in ANTHROPIC_PROVIDERS and "anthropic" in conf.get("base_url", "") else "openai"
         configs.append({
             "name": name,
             "api_key": str(conf["api_key"]),

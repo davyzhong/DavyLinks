@@ -4,6 +4,18 @@
 
 各版本的详细演进过程（性能对比、code review 细节、架构演进）见 `knowledge/evolution/` 目录。
 
+## [Unreleased]
+
+### Changed
+
+- **删除手写 YAML 子集解析器**：`config_loader.py` 移除 `_parse_yaml_simple` fallback，统一使用 PyYAML；`pyyaml` 从可选依赖转为必装依赖。消除手写解析器不支持列表/多行字符串导致的静默解析错误风险（该解析器历史上曾被复制 3 份引发行为漂移，见 evolution/v2.0）
+- **修正 ADR-007 文档失配**：`hash_url` 实际实现为 `hashlib.md5` 截断（非内置 `hash()`），ADR 描述与代码对齐
+
+### 评估记录（2026-09-16 重复造轮子审查）
+
+- `feishu_bitable.py` 的 token 缓存已存在（提前 60s 过期），无需改动
+- LLM 双格式手写调用、聚类 bigram 方案维持 ADR-008/ADR-001 记录的刻意权衡，边界条件见各 ADR
+
 ## [v2.0] - 2026-06-05
 
 本次迭代聚焦代码质量、安全性、可测试性和文档完整性，通过系统性 code review 发现并修复 14 个问题。

@@ -19,11 +19,11 @@ v1.0 用 32 位 hash 作为文章指纹。按生日悖论，32 位空间（约 4
 
 ## 决策
 
-`hash_url()` 从 32 位扩展到 **64 位**（16 hex chars）。`tests/test_immutability.py` 中有专门测试验证返回值 < 2^64 且确定性。
+`hash_url()` 从 32 位扩展到 **64 位**（16 hex chars），实现为 `hashlib.md5(url).hexdigest()[:16]`（`scan_articles.py`）。`tests/test_immutability.py` 中有专门测试验证返回值 < 2^64 且确定性。
 
 ## 后果
 
 - ✅ 10 万篇碰撞概率从 69% 降到 0.000001%
-- ✅ 仍是纯 Python `hash()` 派生，无新依赖
-- ⚠️ 注意：Python 内置 `hash()` 对 str 有随机化（PYTHONHASHSEED），进程间不一致——但去重只依赖**单进程内**的一致性（同一运行中比对），且真正的持久层主键是完整 URL，hash 仅作辅助，无实际影响
+- ✅ 基于 `hashlib` 标准库，无新依赖；md5 的确定性保证跨进程一致（不同于内置 `hash()` 的 PYTHONHASHSEED 随机化）
+- ⚠️ md5 作为通用哈希函数已不安全，但此处仅作 URL 指纹（非安全用途），且持久层主键始终是完整 URL，hash 仅作辅助——密码学强度的顾虑不适用
 - 碰撞概率对比表见 [evolution/v2.0-code-review.md](../evolution/v2.0-code-review.md)

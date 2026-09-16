@@ -107,7 +107,7 @@ conn.executemany("INSERT ...", rows)
 **文件**: `scripts/config_loader.py`
 
 **职责**:
-- 读取 YAML 配置（支持 PyYAML 或内置简易解析器）
+- 读取 YAML 配置（PyYAML，必装依赖）
 - 合并多层配置（deep merge）
 - 提供统一的配置访问接口
 

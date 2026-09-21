@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="600" viewBox="0 0 920 600" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <rect width="920" height="600" rx="16" fill="#F8FAFC"/>
+  <text x="460" y="36" text-anchor="middle" font-size="18" font-weight="700" fill="#1E293B">你会收到什么 — 三层出口</text>
+  <text x="460" y="56" text-anchor="middle" font-size="12" fill="#64748B">以下卡片内容为 2026-06-06 真实运行产出</text>
+
+  <!-- ================= 左：飞书消息卡片 ================= -->
+  <text x="235" y="88" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">① 飞书群消息 · 每日推送</text>
+  <rect x="30" y="100" width="410" height="470" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <!-- 卡片 header -->
+  <rect x="30" y="100" width="410" height="52" rx="14" fill="#059669"/>
+  <rect x="30" y="130" width="410" height="22" fill="#059669"/>
+  <text x="235" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">📰 每日科技资讯精华 2026-06-06</text>
+  <text x="235" y="142" text-anchor="middle" font-size="10.5" fill="#D1FAE5">扫描 30 篇 · 聚类 15 话题 · TOP 5</text>
+  <!-- TOP1 -->
+  <g>
+    <circle cx="52" cy="180" r="10" fill="#059669"/><text x="52" y="184" text-anchor="middle" font-size="11" font-weight="700" fill="#FFF">1</text>
+    <text x="70" y="176" font-size="12" font-weight="700" fill="#1E293B">AI Agent 架构设计（十一）：目标漂移</text>
+    <text x="70" y="192" font-size="10.5" fill="#64748B">对比 OpenClaw / Claude Code / Hermes Agent…</text>
+    <text x="70" y="207" font-size="10" fill="#059669" font-weight="700">评分 36.0</text>
+  </g>
+  <line x1="45" y1="220" x2="425" y2="220" stroke="#F1F5F9"/>
+  <!-- TOP2 -->
+  <g>
+    <circle cx="52" cy="248" r="10" fill="#059669"/><text x="52" y="252" text-anchor="middle" font-size="11" font-weight="700" fill="#FFF">2</text>
+    <text x="70" y="244" font-size="12" font-weight="700" fill="#1E293B">vLLM 0 Day 支持 DeepSeek V4 推理揭秘</text>
+    <text x="70" y="260" font-size="10.5" fill="#64748B">vLLM 已实现首日支持 DeepSeek V4 推理…</text>
+    <text x="70" y="275" font-size="10" fill="#059669" font-weight="700">评分 33.0</text>
+  </g>
+  <line x1="45" y1="288" x2="425" y2="288" stroke="#F1F5F9"/>
+  <!-- TOP3 -->
+  <g>
+    <circle cx="52" cy="316" r="10" fill="#059669"/><text x="52" y="320" text-anchor="middle" font-size="11" font-weight="700" fill="#FFF">3</text>
+    <text x="70" y="312" font-size="12" font-weight="700" fill="#1E293B">免费开源的视频编辑工具，自动剪辑</text>
+    <text x="70" y="328" font-size="10.5" fill="#64748B">一款免费开源工具，全自动完成剪辑…</text>
+    <text x="70" y="343" font-size="10" fill="#059669" font-weight="700">评分 33.0</text>
+  </g>
+  <line x1="45" y1="356" x2="425" y2="356" stroke="#F1F5F9"/>
+  <!-- TOP4 -->
+  <g>
+    <circle cx="52" cy="384" r="10" fill="#059669"/><text x="52" y="388" text-anchor="middle" font-size="11" font-weight="700" fill="#FFF">4</text>
+    <text x="70" y="380" font-size="12" font-weight="700" fill="#1E293B">AI 编程工作流选型指南</text>
+    <text x="70" y="396" font-size="10.5" fill="#64748B">Spec-Kit / OpenSpec / Superpowers 对比…</text>
+    <text x="70" y="411" font-size="10" fill="#059669" font-weight="700">评分 33.0</text>
+  </g>
+  <line x1="45" y1="424" x2="425" y2="424" stroke="#F1F5F9"/>
+  <!-- TOP5 -->
+  <g>
+    <circle cx="52" cy="452" r="10" fill="#059669"/><text x="52" y="456" text-anchor="middle" font-size="11" font-weight="700" fill="#FFF">5</text>
+    <text x="70" y="448" font-size="12" font-weight="700" fill="#1E293B">MPD 峰会：AI 驱动的产品创新</text>
+    <text x="70" y="464" font-size="10.5" fill="#64748B">摆脱模型内卷，掌握 AI 落地能力…</text>
+    <text x="70" y="479" font-size="10" fill="#059669" font-weight="700">评分 33.0</text>
+  </g>
+  <!-- 值得关注 -->
+  <rect x="45" y="492" width="380" height="42" rx="8" fill="#F0FDF4"/>
+  <text x="57" y="510" font-size="10.5" font-weight="700" fill="#166534">👁 值得关注（10 条，仅标题+链接）</text>
+  <text x="57" y="526" font-size="10" fill="#4D7C0F">GPT 5.5 发布 · 谷歌 Nano Banana · 何恺明 ViT 时刻 …</text>
+  <text x="235" y="556" text-anchor="middle" font-size="10.5" fill="#94A3B8">由 DavyLinks 知识助理自动生成</text>
+
+  <!-- ================= 右：多维表格 + Obsidian ================= -->
+  <text x="705" y="88" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">② 飞书多维表格（全量档案）　③ Obsidian（知识沉淀）</text>
+
+  <!-- 多维表格 -->
+  <rect x="470" y="100" width="420" height="240" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <rect x="470" y="100" width="420" height="36" rx="14" fill="#0891B2"/><rect x="470" y="122" width="420" height="14" fill="#0891B2"/>
+  <text x="680" y="123" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">📊 Bitable · 全量记录（20-80 篇/天）</text>
+  <g font-size="10.5">
+    <rect x="485" y="148" width="390" height="26" fill="#F1F5F9"/>
+    <text x="495" y="165" fill="#475569" font-weight="700">日期</text>
+    <text x="545" y="165" fill="#475569" font-weight="700">标题</text>
+    <text x="725" y="165" fill="#475569" font-weight="700">来源</text>
+    <text x="775" y="165" fill="#475569" font-weight="700">评分</text>
+    <text x="825" y="165" fill="#475569" font-weight="700">多源</text>
+    <line x1="485" y1="174" x2="875" y2="174" stroke="#E2E8F0"/>
+    <text x="495" y="194" fill="#334155">06-06</text><text x="545" y="194" fill="#334155">AI Agent 目标漂移</text><text x="725" y="194" fill="#334155">微信</text><text x="775" y="194" fill="#334155">36.0</text><text x="825" y="194" fill="#334155">—</text>
+    <line x1="485" y1="204" x2="875" y2="204" stroke="#F8FAFC"/>
+    <text x="495" y="224" fill="#334155">06-06</text><text x="545" y="224" fill="#334155">vLLM 0 Day 支持 DeepSeek V4</text><text x="725" y="224" fill="#334155">微信</text><text x="775" y="224" fill="#334155">33.0</text><text x="825" y="224" fill="#334155">—</text>
+    <line x1="485" y1="234" x2="875" y2="234" stroke="#F8FAFC"/>
+    <text x="495" y="254" fill="#334155">06-06</text><text x="545" y="254" fill="#334155">AI 编程工作流选型指南</text><text x="725" y="254" fill="#334155">微信</text><text x="775" y="254" fill="#334155">33.0</text><text x="825" y="254" fill="#334155">—</text>
+    <line x1="485" y1="264" x2="875" y2="264" stroke="#F8FAFC"/>
+    <text x="495" y="284" fill="#334155">06-06</text><text x="545" y="284" fill="#334155">GPT 5.5 发布：Token 降 50%</text><text x="725" y="284" fill="#334155">微信</text><text x="775" y="284" fill="#334155">21.0</text><text x="825" y="284" fill="#334155">—</text>
+    <line x1="485" y1="294" x2="875" y2="294" stroke="#F8FAFC"/>
+    <text x="495" y="314" fill="#334155">…</text><text x="545" y="314" fill="#94A3B8">当月全部 570+ 条可筛选回溯</text>
+  </g>
+  <rect x="485" y="322" width="390" height="4" rx="2" fill="#E2E8F0"/>
+  <text x="680" y="362" text-anchor="middle" font-size="10.5" fill="#64748B">字段：日期/标题/来源/来源列表/分类/摘要/热度评分/是否多源交叉/链接</text>
+
+  <!-- Obsidian -->
+  <rect x="470" y="386" width="420" height="184" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <rect x="470" y="386" width="420" height="36" rx="14" fill="#7C3AED"/><rect x="470" y="408" width="420" height="14" fill="#7C3AED"/>
+  <text x="680" y="409" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">📝 Obsidian 每日精华 · 仅 TOP 5</text>
+  <rect x="488" y="436" width="384" height="118" rx="8" fill="#FAF5FF"/>
+  <g font-size="10.5" font-family="Menlo, monospace" fill="#6B21A8">
+    <text x="500" y="456">---</text>
+    <text x="500" y="471">type: daily-digest</text>
+    <text x="500" y="486">date: 2026-06-06</text>
+    <text x="500" y="501">sources_count: 1  articles_count: 15</text>
+    <text x="500" y="516">tags: [daily-digest, davylinks]</text>
+    <text x="500" y="531">---</text>
+    <text x="500" y="546" fill="#1E293B" font-family="-apple-system,'PingFang SC',sans-serif"># 每日科技资讯精华 2026-06-06</text>
+  </g>
+  <text x="680" y="592" text-anchor="middle" font-size="10.5" fill="#94A3B8">每周一自动生成周报，汇总上周精华</text>
+</svg>

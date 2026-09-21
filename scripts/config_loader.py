@@ -7,6 +7,8 @@ import copy
 import os
 from typing import Any
 
+import yaml
+
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
@@ -17,44 +19,8 @@ def _read_yaml(path: str) -> dict[str, Any]:
     if not path or not os.path.exists(path):
         return {}
 
-    try:
-        import yaml
-
-        with open(path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f) or {}
-    except ImportError:
-        return _parse_yaml_simple(path)
-
-
-def _parse_yaml_simple(path: str) -> dict[str, Any]:
-    """Small YAML subset parser for simple secrets files."""
-    result: dict[str, Any] = {}
-    stack: list[tuple[int, dict[str, Any]]] = [(-1, result)]
-
     with open(path, "r", encoding="utf-8") as f:
-        for line in f:
-            raw = line.rstrip()
-            stripped = raw.strip()
-            if not stripped or stripped.startswith("#") or ":" not in stripped:
-                continue
-
-            indent = len(raw) - len(raw.lstrip())
-            key, value = stripped.split(":", 1)
-            key = key.strip()
-            value = value.strip().strip('"').strip("'")
-
-            while stack and indent <= stack[-1][0]:
-                stack.pop()
-            parent = stack[-1][1]
-
-            if value:
-                parent[key] = value
-            else:
-                child: dict[str, Any] = {}
-                parent[key] = child
-                stack.append((indent, child))
-
-    return result
+        return yaml.safe_load(f) or {}
 
 
 def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:

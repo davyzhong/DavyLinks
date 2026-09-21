@@ -1,10 +1,16 @@
 # DavyLinks 知识助理系统设计方案（历史文档）
 
-> **注意**: 这是项目的原始设计文档，记录了系统初始设计思路。当前实现已有较大演进，请参考：
+> **注意**: 这是项目的原始设计文档（存档于 `docs/design/`），记录了系统初始设计思路。当前实现已有较大演进，请参考：
 > - `README.md` - 项目概览和快速开始
 > - `ARCHITECTURE.md` - 当前架构设计
 > - `USAGE.md` - 使用指南
 > - `CLAUDE.md` - Claude Code 快速参考
+> - `CHANGELOG.md` - 版本变更记录
+>
+> **文档目录约定**：
+> - `docs/` - 项目文档（design 设计文档、architecture 架构、api 接口、guides 指南）
+> - `knowledge/` - 项目知识沉淀（evolution 演进记录、decisions 决策、domain 领域、reference 参考）
+> - 版本演进详情见 `knowledge/evolution/v1.0-mvp.md` 与 `knowledge/evolution/v2.0-code-review.md`
 
 ---
 

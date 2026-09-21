@@ -1,208 +1,273 @@
-# DavyLinks 知识助理
+---
+name: davy-links
+description: Daily tech-news aggregation pipeline. 100+ articles/day scanned, clustered, summarized by 4 LLMs in parallel, distilled to the 5 most-mentioned stories. Feishu + Obsidian sinks.
+license: MIT
+homepage: https://github.com/davyzhong/DavyLinks
+audience: power-readers, knowledge-workers, dev-tools enthusiasts
+intent: content-curation
+capabilities:
+  - install
+  - configure
+  - run
+  - schedule
+  - extend-sources
+tags:
+  - rss
+  - news-aggregator
+  - feishu
+  - obsidian
+  - llm-pipeline
+  - clustering
+  - knowledge-management
+---
 
-> 自动化科技资讯聚合系统 — 从多个信息源抓取、AI 摘要、排序，推送每日精华到飞书并沉淀到 Obsidian。
+<div align="center">
 
-## 快速开始
+# 🗞️ DavyLinks · Knowledge Assistant
+
+**Automated tech-news aggregation pipeline — 100+ articles/day distilled to the 5 most-mentioned stories.**
+RSS + WeChat in, Feishu + Obsidian out.
+
+**Languages**: [English](./README.md) · [中文](./README.zh.md)
+
+[![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Tests](https://img.shields.io/badge/Tests-19%20passed-16A34A?logo=pytest&logoColor=white)](#-quality)
+[![License](https://img.shields.io/badge/License-MIT-F59E0B)](#-license)
+[![Feishu](https://img.shields.io/badge/Feishu-bitable%20%2B%20webhook-0891B2)](https://open.feishu.cn/)
+[![Obsidian](https://img.shields.io/badge/Obsidian-vault%20sink-7C3AED)](https://obsidian.md/)
+
+<img src="docs/assets/hero-pipeline.svg" width="100%" alt="DavyLinks six-phase pipeline: RSS + WeChat → scan → cluster → 4-way LLM summary → Feishu table → group card → Obsidian"/>
+
+[Quick Start](#-quick-start) · [How it Works](#-how-it-works) · [What you get](#-what-you-get) · [Design Report](docs/design/design-report.md) · [ADRs](knowledge/decisions/README.md)
+
+</div>
+
+---
+
+## 🎯 What this solves
+
+Tech news sprawls across a dozen platforms — tracking it manually is unsustainable:
+
+| 😫 Pain | ✅ DavyLinks's answer |
+|---------|----------------------|
+| **Sources everywhere**: 36Kr, QbitAI, sspai, Hacker News, WeChat Official Accounts — too many to read | **Config-driven aggregation** — add a row to `sources.json`, no code change |
+| **Chinese RSS shrinking**: Jiqizhixin, Huxiu, InfoQ shut down RSS; WeChat is fully closed | **Hybrid ingest**: native RSS first + [wewe-rss](https://github.com/easychen/wewe-rss) for WeChat |
+| **Repetition fatigue**: one hot story gets reported by 5 outlets | **Topic clustering + cross-source scoring** — more outlets covering = higher rank |
+| **Transient signal**: a great read in chat disappears in a week | **Three-sink output** — Feishu table for archive, group card for daily read, Obsidian for long-term knowledge |
+
+## 🏗️ How it works
+
+```mermaid
+flowchart LR
+    subgraph Sources["📰 Sources"]
+        RSS["RSS / Atom<br/>36Kr·QbitAI·sspai<br/>ITHome·Hacker News"]
+        WX["WeChat OA<br/>via wewe-rss"]
+    end
+
+    subgraph Pipeline["⚙️ Daily run (~60s)"]
+        A["Phase 1-2<br/>scan · dedup<br/>keyword filter<br/>topic cluster"]
+        B["Phase 3<br/>4-way LLM parallel<br/>Qwen/Kimi/Zhipu/MiniMax"]
+        C["Phase 3.5<br/>Feishu Bitable write"]
+        D["Phase 4<br/>group card TOP 5"]
+        E["Phase 5<br/>Obsidian sink"]
+        A --> B --> C --> D --> E
+    end
+
+    RSS --> A
+    WX --> A
+    C --> T1["📊 Full archive"]
+    D --> T2["💬 Daily digest"]
+    E --> T3["📝 Long-term notes"]
+```
+
+**Daily funnel**: scan 100+ → keyword filter 20-80 → cluster ~15 topics → AI summary → **TOP 5 daily**.
+
+### Core mechanism: cross-source verification
+
+> **The strongest signal of importance is being covered by multiple outlets.**
+
+Each cluster gets `cross_bonus = min(outlet_count, 5) × 15`. A story covered by 5 different outlets automatically outranks a single-outlet exclusive — no human editor needed.
+
+## 🧠 Clustering algorithm
+
+Inverted index + Union-Find. English entities and Chinese bigrams as features. Only compare article pairs sharing at least one feature — comparison count drops **80-95%** without quality loss.
+
+<img src="docs/assets/clustering.svg" width="100%" alt="Inverted-index + Union-Find clustering: feature pairs skip non-shared articles"/>
+
+```
+score = source_weight × 2 + title_matches × 3 + content_matches × 1 + recency_bonus
+        └── weight-5 sources carry 10 base        24h+5 · 48h+3 · 72h+1
+
+final_score = relevance_score + quality_rating × 2 + cross_bonus
+                                                └── multi-source boost
+```
+
+## 📦 What you get
+
+Three sinks, three purposes — **archive, daily read, long-term knowledge**. Screenshot from a 2026-06-06 real run:
+
+<img src="docs/assets/outputs.svg" width="100%" alt="Three output sinks: Feishu table archive, group card TOP 5, Obsidian daily note"/>
+
+<details>
+<summary>📄 View real Obsidian daily note (excerpt)</summary>
+
+```markdown
+# Daily Tech Highlights 2026-06-06
+
+## TOP 5
+
+### 1. AI Agent Architecture (XI): Goal Drift (OpenClaw, Claude Code, Hermes Agent)
+> [!info] Summary
+> Comparison of OpenClaw, Claude Code, and Hermes Agent on goal-drift patterns
+> and mitigation strategies in AI architectures.
+
+| Field | Value |
+|-------|-------|
+| Source | WeChat OA |
+| Score | 36.0 |
+| Link | [mp.weixin.qq.com/s/Nr2M0opB…](https://mp.weixin.qq.com/s/Nr2M0opBL30fKXQoF1Sn7g) |
+
+### 2. vLLM Day-0 Support for DeepSeek V4 Inference
+> [!info] Summary
+> How vLLM ships DeepSeek V4 inference on day zero — implementation details
+> and optimization walkthrough.
+
+## Worth watching
+- **Anthropic product lead: from 6-month to 1-day release cycle**
+- **Google's "banana" is too strong — He Kaiming et al. ignite a Vision Transformer moment**
+- **GPT 5.5 release: token consumption cut by 50%**
+---
+*Auto-generated by DavyLinks Knowledge Assistant*
+```
+
+</details>
+
+Pipeline stats from a real terminal run:
+
+```text
+$ .venv/bin/python scripts/pipeline.py
+
+INFO  scan_articles  - pre-computing entities and bigrams for 30 articles...
+INFO  scan_articles  - entity index: 18 entities covering 22 articles
+INFO  scan_articles  - candidate pairs: 41 (raw O(n²)=435)
+INFO  scan_articles  - actual comparisons: 41 (saved 90.6%)
+INFO  summarize      - 4-way LLM parallel done (Qwen/Kimi/Zhipu/MiniMax)
+INFO  feishu_bitable - wrote 15 rows to Feishu Bitable
+INFO  push_feishu    - Feishu card sent successfully
+INFO  save_obsidian  - saved: ObsidianWiki/知识助理/每日精华/2026-06-06.md
+INFO  pipeline       - scanned 30 · filtered 15 · pushed 5 · 58.3s
+```
+
+## 📈 Performance
+
+<img src="docs/assets/performance.svg" width="100%" alt="Performance chart: clustering time, LLM summary time, total run time across data sizes"/>
+
+## 🚀 Quick start
 
 ```bash
-# 1. 安装依赖（Python 3.9+）
+# 1. Install (Python 3.9+)
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 
-# 2. 配置密钥
-cp config/secrets.example.yaml config/secrets.yaml
-# 或: cp config/secrets.example.yaml ~/.davylinks/secrets.yaml
-# 编辑填入飞书、LLM 等凭证
+# 2. Configure: Feishu creds + LLM API keys + Obsidian vault path
+cp config/secrets.example.yaml config/secrets.yaml && vim config/secrets.yaml
 
-# 3. 运行管线
+# 3. Dry-run preview (no push, no save)
+.venv/bin/python scripts/pipeline.py --dry-run
+
+# 4. Real run
 .venv/bin/python scripts/pipeline.py
-
-# 4. 运行测试
-.venv/bin/python -m pytest tests/ -v
 ```
 
-## 系统架构
+<details>
+<summary>🔧 More run modes</summary>
 
-```
-信息源 (RSS/网站)
-    │
-    ▼
-Phase 1-2: 扫描 + 聚类 (scan_articles.py)
-    │
-    ▼
-Phase 3: AI 摘要 + 排序 (summarize.py)
-    │
-    ▼
-Phase 3.5: 飞书多维表格 (feishu_bitable.py)
-    │
-    ▼
-Phase 4: 飞书消息推送 (push_feishu.py)
-    │
-    ▼
-Phase 5: 沉淀 Obsidian (save_obsidian.py)
+```bash
+.venv/bin/python scripts/pipeline.py --skip-push   # skip Feishu card
+.venv/bin/python scripts/pipeline.py --skip-save   # skip Obsidian save
+.venv/bin/python scripts/pipeline.py --cleanup     # purge 90-day-old rows
+.venv/bin/python scripts/state_db.py               # show run statistics
+sh scripts/check.sh                                # compile + full test
 ```
 
-## 核心特性
+Cron (daily at 8:00):
 
-- **多源聚合**: 支持 6+ 个科技资讯源（36氪、少数派、量子位、IT之家、Hacker News + 微信公众号 via wewe-rss）
-- **智能去重**: SQLite 状态库记录已处理文章，支持断点续传
-- **话题聚类**: O(n) 倒排索引算法（实体索引 + 中文二元组索引），自动合并同一话题的多源报道
-- **AI 摘要**: 多 LLM 并行处理（Qwen/Kimi/Zhipu/MiniMax），失败自动 fallback
-- **交叉验证**: 多源报道同一话题 → 评分加成 → 排名靠前
-- **不可变数据流**: 各阶段函数返回新对象，不修改输入数据，便于调试和测试
-- **安全**: SQL 参数化查询防止注入，配置延迟加载避免 import 时泄露
-- **统一配置**: `config_loader.py` 集中管理所有配置，支持环境变量 > config/secrets.yaml > ~/.davylinks/secrets.yaml
-- **完整测试**: 19 个测试用例覆盖配置加载、管线编排、聚类算法、不可变性保证
-
-## 项目结构
-
-```
-DavyLinks/
-├── README.md                   # 本文件
-├── CLAUDE.md                   # Claude Code 快速参考
-├── ARCHITECTURE.md             # 架构设计文档
-├── USAGE.md                    # 详细使用指南
-├── OPTIMIZATION_COMPLETE.md    # 优化历史报告
-├── requirement.md              # 原始设计文档 (历史参考)
-├── requirements.txt            # Python 依赖
-├── .gitignore                  # Git 忽略规则
-├── config/
-│   ├── sources.json            # 信息源 + 关键词配置
-│   └── secrets.example.yaml    # 配置模板
-├── scripts/
-│   ├── config_loader.py        # 统一配置加载模块
-│   ├── logging_config.py       # 统一日志配置
-│   ├── state_db.py             # SQLite 状态管理
-│   ├── scan_articles.py        # Phase 1-2: 扫描 + 聚类
-│   ├── summarize.py            # Phase 3: LLM 摘要
-│   ├── feishu_bitable.py       # Phase 3.5: 飞书表格写入
-│   ├── push_feishu.py          # Phase 4: 飞书消息推送
-│   ├── save_obsidian.py        # Phase 5: Obsidian 沉淀
-│   ├── pipeline.py             # 主流程编排
-│   └── check.sh                # 本地校验脚本
-├── tests/
-│   ├── conftest.py             # pytest 配置
-│   ├── test_config_loader.py   # 配置加载测试
-│   ├── test_config_integration.py  # 模块集成测试
-│   ├── test_pipeline.py        # 管线编排测试
-│   ├── test_push_feishu.py     # 飞书推送测试
-│   ├── test_scan_articles.py   # 聚类算法测试
-│   ├── test_state_db.py        # 数据库测试
-│   └── test_immutability.py    # 不可变性测试
-└── skills/
-    └── davylinks-pipeline.md   # Hermes skill 定义
+```bash
+crontab -e
+# 0 8 * * * cd /path/to/DavyLinks && .venv/bin/python scripts/pipeline.py >> ~/.davylinks/cron.log 2>&1
 ```
 
-## 配置说明
+</details>
 
-### 信息源配置 (`config/sources.json`)
+<details>
+<summary>⚙️ Config example (sources + credentials)</summary>
+
+**`config/sources.json`** — sources and keywords (config-driven, no code change):
 
 ```json
 {
   "sources": [
     {
-      "name": "36 氪",
-      "url": "https://36kr.com/feed",
+      "name": "QbitAI",
+      "url": "https://www.qbitai.com/feed",
+      "category": "AI News",
       "weight": 5,
-      "keywords": ["AI", "大模型", "创业"]
+      "keywords": ["AI", "LLM", "large model"]
     }
   ],
-  "global_keywords": ["AI", "LLM", "开源"]
+  "global_keywords": ["AI", "LLM", "open source", "productivity"]
 }
 ```
 
-### 密钥配置 (`config/secrets.yaml` 或 `~/.davylinks/secrets.yaml`)
-
-配置加载优先级：环境变量 > `config/secrets.yaml` > `~/.davylinks/secrets.yaml`。
-
-所有配置通过 `scripts/config_loader.py` 统一加载，各模块延迟读取（首次调用时初始化）。
+**`config/secrets.yaml`** — credentials (not in git, env vars override):
 
 ```yaml
 feishu:
   app_id: "cli_xxx"
   app_secret: "xxx"
-  webhook_url: "https://open.feishu.cn/..."
-  bitable:
-    app_token: "xxx"
-    table_id: "tblxxx"
+  webhook_url: "https://open.feishu.cn/open-apis/bot/v2/hook/xxx"
+  bitable: { app_token: "bascnxxx", table_id: "tblxxx" }
 
 llm_providers:
-  qwen:
-    api_key: "sk-xxx"
-    base_url: "https://dashscope.aliyuncs.com/..."
+  qwen: { api_key: "sk-xxx", model: "qwen-plus" }
+  kimi: { api_key: "xxx",   model: "moonshot-v1-8k" }
 
 obsidian:
-  vault_path: "/path/to/ObsidianWiki"
-
-davybase:
-  notify_path: ""    # 可选：/path/to/davybase/scripts/notify.py
-  secrets_path: ""   # 可选：/path/to/davybase/secrets.yaml
+  vault_path: "/Users/you/ObsidianWiki"
 ```
 
-## 运行模式
+</details>
 
-```bash
-# 完整执行
-.venv/bin/python scripts/pipeline.py
+## 🛡️ Quality
 
-# 预览模式（不推送、不保存）
-.venv/bin/python scripts/pipeline.py --dry-run
+| Dimension | Mechanism |
+|-----------|-----------|
+| **Tests** | 19 cases: config loading, pipeline orchestration, clustering, DB, immutability guarantees |
+| **Immutable data flow** | Each phase returns a new dict, never mutates input — 7 dedicated tests enforce this |
+| **SQL safety** | Fully parameterized queries — no string interpolation |
+| **Credential safety** | Zero hard-coding, lazy-loaded (not read at import time) |
+| **Fault resilience** | 4-way LLM auto-fallback — one source failing never blocks the pipeline |
 
-# 跳过推送
-.venv/bin/python scripts/pipeline.py --skip-push
+## 📚 Documentation
 
-# 仅清理旧数据
-.venv/bin/python scripts/pipeline.py --cleanup
+| Doc | Content |
+|-----|---------|
+| 📋 [Design Report](docs/design/design-report.md) | **Start here** — background, architecture, decisions, roadmap |
+| 🏛️ [Architecture](docs/architecture/) | Pipeline detail, clustering, summarization, data flow |
+| 📖 [User Guides](docs/guides/) | Quickstart, config, Feishu/Obsidian setup, troubleshooting |
+| 🧠 [ADRs](knowledge/decisions/README.md) | 8 core design decisions + rejected options |
+| 🌏 [Domain KB](knowledge/README.md) | RSS ecosystem, LLM selection, Feishu/Obsidian practice |
+| 📜 [CHANGELOG](CHANGELOG.md) | Version history |
 
-# 本地校验（编译 + 测试）
-sh scripts/check.sh
-```
+## 🔗 Related projects
 
-## 性能指标
+| Project | Relationship |
+|---------|--------------|
+| **[Davybase](https://github.com/davyzhong/davybase)** | Sibling project: private note management; shares Obsidian vault + Feishu notification infra |
+| **blogwatcher-cli** | RSS fetch engine |
+| **wewe-rss** | WeChat OA → Atom feed |
+| **Hermes Agent** | Scheduled-task dispatcher |
 
-| 指标 | 数值 |
-|------|------|
-| 扫描速度 | ~50 篇/秒 |
-| 聚类耗时 (100 篇) | < 1ms |
-| 摘要耗时 (5 篇) | ~30 秒 (并行) |
-| 内存占用 | < 50MB |
-
-## 状态追踪
-
-SQLite 状态库 (`~/.davylinks/state.db`) 记录：
-
-- **processed_articles**: 已处理文章（90 天自动清理，使用参数化查询防止 SQL 注入）
-- **run_log**: 每日运行统计（扫描数、过滤数、推送数）
-
-```bash
-# 查看统计
-.venv/bin/python scripts/state_db.py
-```
-
-## 测试
-
-项目包含 19 个测试用例，覆盖：
-
-- 配置加载优先级和覆盖逻辑
-- 管线编排和错误计数
-- 话题聚类算法正确性
-- 数据库操作（批量插入、参数化查询）
-- **不可变性保证**：验证 `filter_by_keywords`、`summarize_one`、`final_sort` 不修改输入数据
-
-```bash
-# 运行全部测试
-.venv/bin/python -m pytest tests/ -v
-
-# 运行特定模块测试
-.venv/bin/python -m pytest tests/test_immutability.py -v
-```
-
-## 相关项目
-
-- **Davybase**: 私有笔记管理 → 共享 Obsidian vault 和飞书通知
-- **blogwatcher-cli**: RSS 抓取工具
-- **Hermes Agent**: 定时任务框架
-
-## License
+## 📄 License
 
 MIT

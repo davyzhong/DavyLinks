@@ -1,196 +1,198 @@
 ---
-name: davy-links
-description: Daily tech-news aggregation pipeline. 100+ articles/day scanned, clustered, summarized by 4 LLMs in parallel, distilled to the 5 most-mentioned stories. Feishu + Obsidian sinks.
+name: davy-links-zh
+description: 自动化科技资讯聚合管线。每天 100+ 篇资讯，浓缩为 5 条被多家媒体同时报道的精华。飞书多维表格 + Obsidian 长期沉淀为出口。
 license: MIT
 homepage: https://github.com/davyzhong/DavyLinks
-audience: power-readers, knowledge-workers, dev-tools enthusiasts
-intent: content-curation
+audience: 重度阅读者, 知识工作者, AI 工具爱好者
+intent: 内容策展
 capabilities:
-  - install
-  - configure
-  - run
-  - schedule
-  - extend-sources
+  - 安装
+  - 配置
+  - 运行
+  - 调度
+  - 扩展来源
 tags:
   - rss
-  - news-aggregator
-  - feishu
+  - 资讯聚合
+  - 飞书
   - obsidian
-  - llm-pipeline
-  - clustering
-  - knowledge-management
+  - llm-管线
+  - 聚类
+  - 知识管理
 ---
 
 <div align="center">
 
-# 🗞️ DavyLinks · Knowledge Assistant
+**[中文](./README.md)** · [English](./README.en.md)
 
-**Automated tech-news aggregation pipeline — 100+ articles/day distilled to the 5 most-mentioned stories.**
-RSS + WeChat in, Feishu + Obsidian out.
+# 🗞️ DavyLinks 知识助理
 
-**Languages**: [English](./README.md) · [中文](./README.zh.md)
+**自动化科技资讯聚合管线——每天 100+ 篇资讯，浓缩为 5 条被多家媒体同时报道的精华。**
+RSS + 微信公众号入口，飞书 + Obsidian 出口。
+
+**语言**：[English](./README.md) · [中文](./README.zh.md)
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/Tests-19%20passed-16A34A?logo=pytest&logoColor=white)](#-quality)
-[![License](https://img.shields.io/badge/License-MIT-F59E0B)](#-license)
-[![Feishu](https://img.shields.io/badge/Feishu-bitable%20%2B%20webhook-0891B2)](https://open.feishu.cn/)
-[![Obsidian](https://img.shields.io/badge/Obsidian-vault%20sink-7C3AED)](https://obsidian.md/)
+[![Tests](https://img.shields.io/badge/Tests-19%20passed-16A34A?logo=pytest&logoColor=white)](#-质量保障)
+[![License](https://img.shields.io/badge/License-MIT-F59E0B)](#license)
+[![Feishu](https://img.shields.io/badge/%E9%A3%9E%E4%B9%A6-%E7%BE%A4%E6%B6%88%E6%81%AF%20%2B%20%E5%A4%9A%E7%BB%B4%E8%A1%A8%E6%A0%BC-0891B2)](https://open.feishu.cn/)
+[![Obsidian](https://img.shields.io/badge/Obsidian-%E7%9F%A5%E8%AF%86%E6%B2%89%E6%B7%80-7C3AED)](https://obsidian.md/)
 
-<img src="docs/assets/hero-pipeline.svg" width="100%" alt="DavyLinks six-phase pipeline: RSS + WeChat → scan → cluster → 4-way LLM summary → Feishu table → group card → Obsidian"/>
+<img src="docs/assets/hero-pipeline.svg" width="100%" alt="DavyLinks 六阶段管线架构图：RSS + 微信公众号 → 扫描 → 聚类 → 4 路 LLM 并行摘要 → 飞书多维表格 → 群消息卡片 → Obsidian 沉淀"/>
 
-[Quick Start](#-quick-start) · [How it Works](#-how-it-works) · [What you get](#-what-you-get) · [Design Report](docs/design/design-report.md) · [ADRs](knowledge/decisions/README.md)
+[快速开始](#-快速开始) · [它是怎么工作的](#-它是怎么工作的) · [你会收到什么](#-你会收到什么) · [设计报告](docs/design/design-report.md) · [架构决策 ADR](knowledge/decisions/README.md)
 
 </div>
 
 ---
 
-## 🎯 What this solves
+## 💡 为什么需要 DavyLinks
 
-Tech news sprawls across a dozen platforms — tracking it manually is unsustainable:
+每天科技资讯散落在十几个平台，人工跟踪的成本越来越高：
 
-| 😫 Pain | ✅ DavyLinks's answer |
-|---------|----------------------|
-| **Sources everywhere**: 36Kr, QbitAI, sspai, Hacker News, WeChat Official Accounts — too many to read | **Config-driven aggregation** — add a row to `sources.json`, no code change |
-| **Chinese RSS shrinking**: Jiqizhixin, Huxiu, InfoQ shut down RSS; WeChat is fully closed | **Hybrid ingest**: native RSS first + [wewe-rss](https://github.com/easychen/wewe-rss) for WeChat |
-| **Repetition fatigue**: one hot story gets reported by 5 outlets | **Topic clustering + cross-source scoring** — more outlets covering = higher rank |
-| **Transient signal**: a great read in chat disappears in a week | **Three-sink output** — Feishu table for archive, group card for daily read, Obsidian for long-term knowledge |
+| 😫 痛点 | ✅ DavyLinks 的方案 |
+|---------|---------------------|
+| 来源分散：36氪、量子位、少数派、Hacker News、微信公众号……逐一看不完 | **配置驱动多源聚合**——在 `sources.json` 加一行即可接入新源，无需改代码 |
+| 中文 RSS 生态萎缩：机器之心、虎嗅、InfoQ 相继关停 RSS，微信公众号完全封闭 | **混合接入**：原生 RSS 优先 + [wewe-rss](https://github.com/easychen/wewe-rss) 补微信公众号 |
+| 重复轰炸：同一热点被 5 家源反复报道 | **话题聚类 + 多源交叉验证**——同话题自动合并，被多家报道反而加分，重要的事排前面 |
+| 转瞬即逝：群消息里看过的文章，一周后找不回来 | **三层出口**：飞书表格存全量档案可回溯，群消息推精华，Obsidian 沉淀长期知识 |
 
-## 🏗️ How it works
+## 🏗️ 它是怎么工作的
 
 ```mermaid
 flowchart LR
-    subgraph Sources["📰 Sources"]
-        RSS["RSS / Atom<br/>36Kr·QbitAI·sspai<br/>ITHome·Hacker News"]
-        WX["WeChat OA<br/>via wewe-rss"]
+    subgraph Sources["📰 信息源"]
+        RSS["RSS / Atom<br/>36氪·量子位·少数派<br/>IT之家·Hacker News"]
+        WX["微信公众号<br/>wewe-rss"]
     end
 
-    subgraph Pipeline["⚙️ Daily run (~60s)"]
-        A["Phase 1-2<br/>scan · dedup<br/>keyword filter<br/>topic cluster"]
-        B["Phase 3<br/>4-way LLM parallel<br/>Qwen/Kimi/Zhipu/MiniMax"]
-        C["Phase 3.5<br/>Feishu Bitable write"]
-        D["Phase 4<br/>group card TOP 5"]
-        E["Phase 5<br/>Obsidian sink"]
+    subgraph Pipeline["⚙️ 每日管线（约 60 秒）"]
+        A["Phase 1-2<br/>扫描 · 去重<br/>关键词过滤<br/>话题聚类"]
+        B["Phase 3<br/>4 路 LLM 并行摘要<br/>Qwen/Kimi/Zhipu/MiniMax"]
+        C["Phase 3.5<br/>多维表格全量写入"]
+        D["Phase 4<br/>群消息推送 TOP 5"]
+        E["Phase 5<br/>Obsidian 沉淀"]
         A --> B --> C --> D --> E
     end
 
     RSS --> A
     WX --> A
-    C --> T1["📊 Full archive"]
-    D --> T2["💬 Daily digest"]
-    E --> T3["📝 Long-term notes"]
+    C --> T1["📊 全量档案"]
+    D --> T2["💬 精华推送"]
+    E --> T3["📝 知识沉淀"]
 ```
 
-**Daily funnel**: scan 100+ → keyword filter 20-80 → cluster ~15 topics → AI summary → **TOP 5 daily**.
+**一次运行的完整数据漏斗**：扫描 100+ 篇 → 关键词过滤剩 20-80 篇 → 聚类合并为约 15 个话题 → AI 摘要排序 → 每日 TOP 5。
 
-### Core mechanism: cross-source verification
+### 核心机制：多源交叉验证
 
-> **The strongest signal of importance is being covered by multiple outlets.**
+> **被多家媒体同时报道，本身就是重要性的最强信号。**
 
-Each cluster gets `cross_bonus = min(outlet_count, 5) × 15`. A story covered by 5 different outlets automatically outranks a single-outlet exclusive — no human editor needed.
+同一话题被越多来源报道，`cross_bonus = min(来源数, 5) × 15` 加成越高，排名越靠前。这让管线不需要人工编辑，也能把"真正的大事"顶到最上面。
 
-## 🧠 Clustering algorithm
+## 🧠 聚类算法：怎么识别"同一件事"
 
-Inverted index + Union-Find. English entities and Chinese bigrams as features. Only compare article pairs sharing at least one feature — comparison count drops **80-95%** without quality loss.
+倒排索引 + Union-Find，用英文实体名和中文二元组做特征，只比较有共享特征的文章对——比较次数减少 **80-95%**，聚类质量不降：
 
-<img src="docs/assets/clustering.svg" width="100%" alt="Inverted-index + Union-Find clustering: feature pairs skip non-shared articles"/>
+<img src="docs/assets/clustering.svg" width="100%" alt="倒排索引聚类算法示意图：特征对只比较共享文章，跳过无关对"/>
+
+**相关性评分**（决定谁能进入后续流程）与**最终排序**（决定 TOP 5）：
 
 ```
 score = source_weight × 2 + title_matches × 3 + content_matches × 1 + recency_bonus
-        └── weight-5 sources carry 10 base        24h+5 · 48h+3 · 72h+1
+        └── 权重 5 的源自带 10 分底分        24h 内+5 · 48h 内+3 · 72h 内+1
 
 final_score = relevance_score + quality_rating × 2 + cross_bonus
-                                                └── multi-source boost
+                                                  └── 多源交叉验证加成
 ```
 
-## 📦 What you get
+## 📦 你会收到什么
 
-Three sinks, three purposes — **archive, daily read, long-term knowledge**. Screenshot from a 2026-06-06 real run:
+三个出口各司其职——**完整档案、日常阅读、长期沉淀**。下图为 2026-06-06 真实运行产出的样式还原：
 
-<img src="docs/assets/outputs.svg" width="100%" alt="Three output sinks: Feishu table archive, group card TOP 5, Obsidian daily note"/>
+<img src="docs/assets/outputs.svg" width="100%" alt="三层出口与真实产出示例：飞书表格档案、群消息卡片、Obsidian 每日笔记"/>
 
 <details>
-<summary>📄 View real Obsidian daily note (excerpt)</summary>
+<summary>📄 点开查看真实产出的 Obsidian 每日笔记（节选）</summary>
 
 ```markdown
-# Daily Tech Highlights 2026-06-06
+# 每日科技资讯精华 2026-06-06
 
 ## TOP 5
 
-### 1. AI Agent Architecture (XI): Goal Drift (OpenClaw, Claude Code, Hermes Agent)
-> [!info] Summary
-> Comparison of OpenClaw, Claude Code, and Hermes Agent on goal-drift patterns
-> and mitigation strategies in AI architectures.
+### 1. AI Agent 架构设计（十一）：目标漂移（OpenClaw、Claude Code、Hermes Agent 对比）
+> [!info] 摘要
+> 本文对比 OpenClaw、Claude Code 与 Hermes Agent，探讨 AI 架构中的目标漂移问题及应对策略。
 
-| Field | Value |
-|-------|-------|
-| Source | WeChat OA |
-| Score | 36.0 |
-| Link | [mp.weixin.qq.com/s/Nr2M0opB…](https://mp.weixin.qq.com/s/Nr2M0opBL30fKXQoF1Sn7g) |
+| 属性 | 值 |
+|------|-----|
+| 来源 | 微信公众号 |
+| 评分 | 36.0 |
+| 链接 | [mp.weixin.qq.com/s/Nr2M0opB…](https://mp.weixin.qq.com/s/Nr2M0opBL30fKXQoF1Sn7g) |
 
-### 2. vLLM Day-0 Support for DeepSeek V4 Inference
-> [!info] Summary
-> How vLLM ships DeepSeek V4 inference on day zero — implementation details
-> and optimization walkthrough.
+### 2. vLLM 0 Day 支持 DeepSeek V4 推理揭秘
+> [!info] 摘要
+> vLLM 已实现首日支持 DeepSeek V4 推理，本文揭秘其技术实现与优化细节。
 
-## Worth watching
-- **Anthropic product lead: from 6-month to 1-day release cycle**
-- **Google's "banana" is too strong — He Kaiming et al. ignite a Vision Transformer moment**
-- **GPT 5.5 release: token consumption cut by 50%**
+## 值得关注
+- **Anthropic 产品负责人：从 6 个月到 1 天的发版秘密**
+- **谷歌这把「香蕉」太狠了！何恺明等引爆视觉 Transformer 时刻**
+- **GPT 5.5 发布：Token 消耗直降 50%**
 ---
-*Auto-generated by DavyLinks Knowledge Assistant*
+*由 DavyLinks 知识助理自动生成*
 ```
 
 </details>
 
-Pipeline stats from a real terminal run:
+终端运行时也能看到完整的管线统计：
 
 ```text
 $ .venv/bin/python scripts/pipeline.py
 
-INFO  scan_articles  - pre-computing entities and bigrams for 30 articles...
-INFO  scan_articles  - entity index: 18 entities covering 22 articles
-INFO  scan_articles  - candidate pairs: 41 (raw O(n²)=435)
-INFO  scan_articles  - actual comparisons: 41 (saved 90.6%)
-INFO  summarize      - 4-way LLM parallel done (Qwen/Kimi/Zhipu/MiniMax)
-INFO  feishu_bitable - wrote 15 rows to Feishu Bitable
-INFO  push_feishu    - Feishu card sent successfully
-INFO  save_obsidian  - saved: ObsidianWiki/知识助理/每日精华/2026-06-06.md
-INFO  pipeline       - scanned 30 · filtered 15 · pushed 5 · 58.3s
+INFO  scan_articles  - 预计算 30 篇文章的实体和二元组...
+INFO  scan_articles  - 实体索引：18 个实体，覆盖 22 篇文章
+INFO  scan_articles  - 候选比较对：41 对（原始 O(n²)=435）
+INFO  scan_articles  - 实际比较次数：41（节省 90.6%）
+INFO  summarize      - 4 路 LLM 并行摘要完成（Qwen/Kimi/Zhipu/MiniMax）
+INFO  feishu_bitable - 写入飞书多维表格 15 条
+INFO  push_feishu    - 飞书卡片推送成功
+INFO  save_obsidian  - 已保存：ObsidianWiki/知识助理/每日精华/2026-06-06.md
+INFO  pipeline       - 扫描 30 · 过滤 15 · 推送 5 · 耗时 58.3s
 ```
 
-## 📈 Performance
+## 📈 性能
 
-<img src="docs/assets/performance.svg" width="100%" alt="Performance chart: clustering time, LLM summary time, total run time across data sizes"/>
+<img src="docs/assets/performance.svg" width="100%" alt="性能对比图：不同数据量下的聚类时间、LLM 摘要时间、总耗时"/>
 
-## 🚀 Quick start
+## 🚀 快速开始
 
 ```bash
-# 1. Install (Python 3.9+)
+# 1. 安装依赖（Python 3.9+）
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 
-# 2. Configure: Feishu creds + LLM API keys + Obsidian vault path
+# 2. 配置密钥：飞书凭证 + LLM API Key + Obsidian 路径
 cp config/secrets.example.yaml config/secrets.yaml && vim config/secrets.yaml
 
-# 3. Dry-run preview (no push, no save)
+# 3. 预览运行（不推送、不保存）
 .venv/bin/python scripts/pipeline.py --dry-run
 
-# 4. Real run
+# 4. 正式运行
 .venv/bin/python scripts/pipeline.py
 ```
 
 <details>
-<summary>🔧 More run modes</summary>
+<summary>🔧 更多运行模式</summary>
 
 ```bash
-.venv/bin/python scripts/pipeline.py --skip-push   # skip Feishu card
-.venv/bin/python scripts/pipeline.py --skip-save   # skip Obsidian save
-.venv/bin/python scripts/pipeline.py --cleanup     # purge 90-day-old rows
-.venv/bin/python scripts/state_db.py               # show run statistics
-sh scripts/check.sh                                # compile + full test
+.venv/bin/python scripts/pipeline.py --skip-push   # 跳过飞书推送
+.venv/bin/python scripts/pipeline.py --skip-save   # 跳过 Obsidian 保存
+.venv/bin/python scripts/pipeline.py --cleanup     # 清理 90 天前旧数据
+.venv/bin/python scripts/state_db.py               # 查看运行统计
+sh scripts/check.sh                                # 编译 + 全部测试
 ```
 
-Cron (daily at 8:00):
+定时任务（每天 8:00）：
 
 ```bash
 crontab -e
@@ -200,26 +202,26 @@ crontab -e
 </details>
 
 <details>
-<summary>⚙️ Config example (sources + credentials)</summary>
+<summary>⚙️ 配置示例（信息源与密钥）</summary>
 
-**`config/sources.json`** — sources and keywords (config-driven, no code change):
+**`config/sources.json`** — 信息源与关键词（配置驱动，加源不改代码）：
 
 ```json
 {
   "sources": [
     {
-      "name": "QbitAI",
+      "name": "量子位",
       "url": "https://www.qbitai.com/feed",
-      "category": "AI News",
+      "category": "AI资讯",
       "weight": 5,
-      "keywords": ["AI", "LLM", "large model"]
+      "keywords": ["AI", "大模型", "LLM"]
     }
   ],
-  "global_keywords": ["AI", "LLM", "open source", "productivity"]
+  "global_keywords": ["AI", "LLM", "开源", "效率"]
 }
 ```
 
-**`config/secrets.yaml`** — credentials (not in git, env vars override):
+**`config/secrets.yaml`** — 凭证（不提交 git，支持环境变量覆盖）：
 
 ```yaml
 feishu:
@@ -238,35 +240,35 @@ obsidian:
 
 </details>
 
-## 🛡️ Quality
+## 🛡️ 质量保障
 
-| Dimension | Mechanism |
-|-----------|-----------|
-| **Tests** | 19 cases: config loading, pipeline orchestration, clustering, DB, immutability guarantees |
-| **Immutable data flow** | Each phase returns a new dict, never mutates input — 7 dedicated tests enforce this |
-| **SQL safety** | Fully parameterized queries — no string interpolation |
-| **Credential safety** | Zero hard-coding, lazy-loaded (not read at import time) |
-| **Fault resilience** | 4-way LLM auto-fallback — one source failing never blocks the pipeline |
+| 维度 | 机制 |
+|------|------|
+| **测试** | 19 个用例：配置加载、管线编排、聚类算法、数据库、不可变性保证 |
+| **不可变数据流** | 各阶段函数返回新 dict、不修改输入，7 个专项测试强制保证 |
+| **SQL 安全** | 全部参数化查询，杜绝注入 |
+| **密钥安全** | 零硬编码，延迟加载（import 时不读 secrets） |
+| **故障韧性** | 4 路 LLM 自动 fallback，单源失败不阻塞管线 |
 
-## 📚 Documentation
+## 📚 文档
 
-| Doc | Content |
-|-----|---------|
-| 📋 [Design Report](docs/design/design-report.md) | **Start here** — background, architecture, decisions, roadmap |
-| 🏛️ [Architecture](docs/architecture/) | Pipeline detail, clustering, summarization, data flow |
-| 📖 [User Guides](docs/guides/) | Quickstart, config, Feishu/Obsidian setup, troubleshooting |
-| 🧠 [ADRs](knowledge/decisions/README.md) | 8 core design decisions + rejected options |
-| 🌏 [Domain KB](knowledge/README.md) | RSS ecosystem, LLM selection, Feishu/Obsidian practice |
-| 📜 [CHANGELOG](CHANGELOG.md) | Version history |
+| 文档 | 内容 |
+|------|------|
+| 📋 [设计报告](docs/design/design-report.md) | **全面理解本项目从这里开始**——业务背景、架构、决策、规划 |
+| 🏛️ [架构文档](docs/architecture/) | 管线详解、聚类算法、摘要机制、数据流 |
+| 📖 [使用指南](docs/guides/) | 快速上手、配置、飞书/Obsidian 接入、故障排查 |
+| 🧠 [架构决策 ADR](knowledge/decisions/README.md) | 8 条核心设计决策的背景与权衡 |
+| 🌏 [领域知识库](knowledge/README.md) | RSS 生态、LLM 选型、飞书/Obsidian 实践 |
+| 📜 [CHANGELOG](CHANGELOG.md) | 版本变更记录 |
 
-## 🔗 Related projects
+## 🔗 相关项目
 
-| Project | Relationship |
-|---------|--------------|
-| **[Davybase](https://github.com/davyzhong/davybase)** | Sibling project: private note management; shares Obsidian vault + Feishu notification infra |
-| **blogwatcher-cli** | RSS fetch engine |
-| **wewe-rss** | WeChat OA → Atom feed |
-| **Hermes Agent** | Scheduled-task dispatcher |
+| 项目 | 关系 |
+|------|------|
+| **[Davybase](https://github.com/davyzhong/davybase)** | 姊妹项目：私有笔记管理，共享同一 Obsidian vault 与飞书通知基础设施 |
+| **blogwatcher-cli** | RSS 抓取引擎 |
+| **wewe-rss** | 微信公众号转 Atom feed |
+| **Hermes Agent** | 定时任务调度 |
 
 ## 📄 License
 

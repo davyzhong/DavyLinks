@@ -30,7 +30,6 @@ tags:
 **Automated tech-news aggregation pipeline — 100+ articles/day distilled to the 5 most-mentioned stories.**
 RSS + WeChat in, Feishu + Obsidian out.
 
-**Languages**: [English](./README.md) · [中文](./README.en.md)
 
 [![Python 版本](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Tests 测试状态](https://img.shields.io/badge/Tests-19%20passed-16A34A?logo=pytest&logoColor=white)](#-quality)

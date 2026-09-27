@@ -30,6 +30,10 @@ tags:
 **Automated tech-news aggregation pipeline — 100+ articles/day distilled to the 5 most-mentioned stories.**
 RSS + WeChat in, Feishu + Obsidian out.
 
+**Languages**: English only. This project targets an international audience; a Chinese edition
+(`README.zh.md`) is not currently provided. Chinese-language *sources* (36Kr, QbitAI, sspai,
+WeChat Official Accounts) are ingested as content, but the documentation is English-only.
+
 
 [![Python 版本](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Tests 测试状态](https://img.shields.io/badge/Tests-19%20passed-16A34A?logo=pytest&logoColor=white)](#-quality)

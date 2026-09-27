@@ -1,0 +1,100 @@
+# DavyLinks README 的 agent-reviewed 规则评审
+#
+# 评审对象：./README.md（285 行）
+# 评审时间：2026-09-27
+# 项目类型：cli（每日技术新闻聚合管线）
+# 用法：pnpm readme-craft check . --type cli --review review.yaml
+#
+# 说明：本项目正文为全英文（无 README.en.md），面向国际技术读者，
+# 默认语言策略为「仅英文」；无外部商业客户可引用，T11 按 N/A 处理。
+
+specVersion: 3.0.0-alpha.0
+
+reviews:
+  # T01 视觉锤
+  - id: T01
+    score: 4
+    reason: >-
+      居中主标题、英文副标题与 badge 矩阵齐备；
+      「📦 What you get」与「TOP 5」章节提供输出样例（飞书表格、群卡片、Obsidian 笔记），
+      读者可直接看到产物形态。
+      扣 1 分：首屏无产品截图——飞书卡片与 Obsidian 产物的真实截图未放在首屏，
+      对以「三路输出」为核心卖点的项目，实物视觉能显著提升说服力。
+    evidence: [logo-tagline]
+
+  # T02 三秒价值主张
+  - id: T02
+    score: 5
+    reason: >-
+      frontmatter description 完整给出定位与量化：每日 100+ 篇文章扫描、
+      聚类、4 个 LLM 并行摘要、蒸馏为 5 条最多被提及的故事，
+      并点名两个 sink（Feishu + Obsidian）。
+      「What this solves」用痛点对照表进一步说明为什么需要它。
+      做什么、给谁用、独特优势（聚类去重 + 三路输出）三要素完整且带数字。
+    evidence: [value-proposition]
+
+  # T04 安装路径
+  - id: T04
+    score: 4
+    reason: >-
+      Quick start 章节给出配置驱动的接入方式（在 sources.json 加一行即新增信源，
+      无需改代码），并说明依赖与运行命令。
+      扣 1 分：README 中提到依赖 wewe-rss 抓取微信公众号，该依赖需额外安装，
+      快速开始章节未把它列为前置步骤，读者按主流程走会中途缺依赖。
+    evidence: [executable-command, supported-platforms]
+
+  # T05 Quickstart
+  - id: T05
+    score: 4
+    reason: >-
+      Quick start 提供从配置到运行的完整流程，并说明三种输出形态的触发方式。
+      扣 1 分：管线依赖飞书机器人凭据与多个 LLM API key，
+      首次跑通需配置多个外部服务，无一键体验入口。
+    evidence: [quickstart-steps]
+
+  # T07 卖点编号
+  - id: T07
+    score: 5
+    reason: >-
+      「What this solves」四行痛点对照，每行都给出具体机制而非口号：
+      配置驱动的聚合（举出 36Kr / QbitAI / sspai / Hacker News / 微信公众号等具体信源）、
+      混合抓取（说明 RSS 萎缩的现实与 wewe-rss 补位）、
+      聚类去重（说明「覆盖来源越多排名越高」的加权逻辑）、
+      三路输出（飞书表格归档 / 群卡片日读 / Obsidian 长期知识）。
+      痛点与解法一一对应且均可验证。
+    evidence: [numbered-selling-points, quantified-benefit]
+
+  # T08 Feature 分组
+  - id: T08
+    score: 5
+    reason: >-
+      按「解决什么 / 工作原理 / 聚类算法 / 产出物 / TOP 5 / 值得关注 /
+      性能 / 快速上手 / 质量保障 / 文档 / 相关项目」组织，
+      独立的「Clustering algorithm」与「Quality」章节体现技术深度，
+      检索路径完整。
+    evidence: [feature-groups]
+
+  # T11 引用/背书
+  - id: T11
+    status: na
+    reason: >-
+      个人工具类项目，无外部商业客户可引用。
+      按 N/A 处理，不虚构用户数量或订阅者背书。
+
+  # T14 包容性语言
+  - id: T14
+    score: 5
+    reason: >-
+      全文使用「you」等第二人称与中性称谓，无 he/she 默认指代、
+      无性别化或地域化表述；列举信源时使用中性描述
+      （Chinese RSS shrinking 并说明具体站点），不做地域优劣评判。
+    evidence: [inclusive-language-review]
+
+  # T17 默认语言策略
+  - id: T17
+    score: 5
+    reason: >-
+      首屏显式声明 English only，并说明不提供中文版、欢迎 PR 补充 README.zh.md；
+      同时主动区分「中文信源属内容」与「文档语言为英文」这一易混淆点。
+      默认语言与面向国际技术读者的定位一致，策略完整可执行。
+    evidence: [default-language-rationale]

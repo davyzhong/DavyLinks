@@ -269,6 +269,13 @@ obsidian:
 | **wewe-rss** | WeChat OA → Atom feed |
 | **Hermes Agent** | Scheduled-task dispatcher |
 
+## 🙏 致谢
+
+- **方法论**：本 README 的结构与自检口径遵循 [readme-craft](https://github.com/davyzhong/readme-craft) ——
+  19 条铁律 + 13 条反模式，规则以 `rules.yaml` 为单一事实源，可用 `npx github:davyzhong/readme-craft check .` 复验。
+- **贡献**：欢迎通过 Issue 与 PR 参与，具体流程见下方贡献章节。
+- **赞助**：本项目暂无商业赞助。若希望支持维护，请优先贡献 Issue、PR 或文档改进。
+
 ## 📄 License
 
 MIT
